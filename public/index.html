@@ -36,15 +36,70 @@
         body, #message { margin-top: 0; background: white; box-shadow: none; }
         body { border-top: 16px solid #ffa100; }
       }
+      #query {
+        width: 80vw;
+        position: absolute;
+        left: 10vw;
+        top: 40vh;
+        height: 40px;
+        border-radius: 20px;
+        border: none;
+        outline: none;
+        padding: 0 17px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      #search-button {
+        position: absolute;
+        top: calc(40vh + 4px);
+        width: 100px;
+        left: calc(90vw - 100px - 5px);
+        border: none;
+        background: #a3d7c5;
+        padding: 9px 10px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+    #header {
+      position: absolute;
+      text-align: center;
+      width: 100%;
+      /* left: calc(50% - 150px); */
+      top: 8vh;
+      font-size: 50px;
+    }
+    #results {
+      position: absolute;
+      top:50vh;
+      width:80vw;
+      left:10vw;      
+    }
+    .hit {
+      background-color: white;
+      padding:30px;
+      border-radius:10px;
+      width:50px;
+      display:inline-block;
+      margin:5px;
+      text-align: center;
+    }
     </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
   </head>
   <body>
-    <input type="text" id="query" placholder="query" /><button onclick="performQuery()">SEARCH</button>
+    <h1 id="header">Politics Navigator</h1>
+    <input type="text" id="query" placeholder="query" /><button onclick="performQuery()" id="search-button">SEARCH</button>
+    <div id="results">
+
+    </div>
+    
     <script>
       var search;
 
       document.addEventListener('DOMContentLoaded', function() {
         search  = firebase.functions().httpsCallable('search');
+        $("#query").focus()
       });
 
 
@@ -52,7 +107,10 @@
         queryText = document.getElementById("query").value
         search({"query" : queryText}).then((res)=>{
           for(var hit of res.data.hits){
-           alert(hit.objectID)
+            var obj = $("<div>")
+            obj.attr('class', "hit")
+            $("#results").append(obj)
+            obj.text(hit.objectID)
           }
         })
       }
