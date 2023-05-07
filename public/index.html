@@ -106,6 +106,7 @@
       function performQuery(){
         queryText = document.getElementById("query").value
         search({"query" : queryText}).then((res)=>{
+          $("#results").empty()
           for(var hit of res.data.hits){
             var obj = $("<div>")
             obj.attr('class', "hit")
