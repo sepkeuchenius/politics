@@ -123,33 +123,14 @@
 
     }
 
-      function drawNetwork(hits){
-           // create an array with nodes
-        var nodes = new vis.DataSet(hits.filter(getHitNode).map(getHitNode).concat([
-            {
-                "id": 10000, "label": "VVD", "color": "orange", "size": 50, 
-                "heightConstraint": {"minimum": 50},
-                "widthConstraint": {"minimum": 50}
-        }]));
-       
-        var edges = new vis.DataSet(hits.map(function(hit, index){ return {"from":index, "to": 10000}}))
-
-        // create a network
-        var container = document.getElementById("results");
-        var data = {
-            nodes: nodes,
-            edges: edges,
-        };
-        var options = {"nodes": { "borderWidth": 0 }};
-        var network = new vis.Network(container, data, options);
-      }
+      
 
       function performQuery(){
         queryText = document.getElementById("query").value
         search({"query" : queryText}).then((res)=>{
           $("#results").empty()
           console.log(res.data)
-          drawNetwork(res.data.hits)
+          drawNetwork(res.data)
         })
       }
       $("#query").on("keypress", function(event) {
@@ -161,24 +142,25 @@
           document.getElementById("search-button").click();
         }
       });
+      
+    function drawNetwork(data){
+      // create an array with nodes
 
-    function _find_highlight(hit){
-        var text = hit.text
-        var highlightText  = hit._highlightResult.text
-        if(highlightText){
-            highlightText = highlightText.value
-        }
-        else{
-            return [false, false, false]
-        }
-        var highLightSentences = highlightText.split(".")
-        for(sentence of highLightSentences){
-            if(sentence.includes("<em>")){
-                var filteredSentence = sentence.replace("<em>", "").replace("</em>", "")
-                return [filteredSentence.substring(0, 10) + "...", filteredSentence, hit.text]
-            }
-        }
+      var nodes = new vis.DataSet(data[0]);
+
+      var edges = new vis.DataSet(data[1])
+
+      // create a network
+      var container = document.getElementById("results");
+      var data = {
+        nodes: nodes,
+        edges: edges,
+      };
+      var options = {"nodes": { "borderWidth": 0 }};
+      var network = new vis.Network(container, data, options);
     }
+
+    
     
     </script>
   </body>
