@@ -110,10 +110,11 @@
 
 
       function getHitNode(hit, index){
-        var highlightText = _find_highlight
+        var [highlightText, highlightSentence, paragraph] = _find_highlight(hit)
         if(highlightText){
-            return {"label": _find_highlight(hit), "id": index, 
-                "heightConstraint": {"minimum": 30}
+            return {"label": highlightText, "id": index, 
+                "heightConstraint": {"minimum": 30},
+                "title": highlightSentence,
             }   
         }
         else {
@@ -124,14 +125,14 @@
 
       function drawNetwork(hits){
            // create an array with nodes
-        var nodes = new vis.DataSet(hits.map(getHitNode).concat([
+        var nodes = new vis.DataSet(hits.filter(getHitNode).map(getHitNode).concat([
             {
-                "id": 20, "label": "VVD", "color": "orange", "size": 50, 
+                "id": 10000, "label": "VVD", "color": "orange", "size": 50, 
                 "heightConstraint": {"minimum": 50},
                 "widthConstraint": {"minimum": 50}
         }]));
        
-        var edges = new vis.DataSet(hits.map(function(hit, index){ return {"from":index, "to": 20}}))
+        var edges = new vis.DataSet(hits.map(function(hit, index){ return {"from":index, "to": 10000}}))
 
         // create a network
         var container = document.getElementById("results");
@@ -168,12 +169,13 @@
             highlightText = highlightText.value
         }
         else{
-            return false
+            return [false, false, false]
         }
         var highLightSentences = highlightText.split(".")
         for(sentence of highLightSentences){
             if(sentence.includes("<em>")){
-                return sentence.replace("<em>", "").replace("</em>", "").substring(0, 10) + "..."
+                var filteredSentence = sentence.replace("<em>", "").replace("</em>", "")
+                return [filteredSentence.substring(0, 10) + "...", filteredSentence, hit.text]
             }
         }
     }
