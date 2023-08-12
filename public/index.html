@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Politics Navigator</title>
-
+    <script
+    type="text/javascript"
+    src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
+  ></script>
     <!-- update the version number as needed -->
     <script defer src="/__/firebase/9.20.0/firebase-app-compat.js"></script>
     <!-- include only the Firebase features as you need -->
@@ -40,7 +43,7 @@
         width: 80vw;
         position: absolute;
         left: 10vw;
-        top: 40vh;
+        top: 15vh;
         height: 40px;
         border-radius: 20px;
         border: none;
@@ -51,7 +54,7 @@
       }
       #search-button {
         position: absolute;
-        top: calc(40vh + 4px);
+        top: calc(15vh + 4px);
         width: 100px;
         left: calc(90vw - 100px - 5px);
         border: none;
@@ -65,14 +68,15 @@
       text-align: center;
       width: 100%;
       /* left: calc(50% - 150px); */
-      top: 8vh;
+      top: 1vh;
       font-size: 50px;
     }
     #results {
       position: absolute;
-      top:50vh;
-      width:80vw;
-      left:10vw;      
+      top:calc(15vh + 40px);
+      width:100vw;
+      left:0vw;
+      height: 100vh;      
     }
     .hit {
       background-color: white;
@@ -93,7 +97,8 @@
     <div id="results">
 
     </div>
-    
+    <div id="mynetwork"></div>
+
     <script>
       var search;
 
@@ -103,18 +108,47 @@
       });
 
 
+
+      function getHitNode(hit, index){
+        var highlightText = _find_highlight
+        if(highlightText){
+            return {"label": _find_highlight(hit), "id": index, 
+                "heightConstraint": {"minimum": 30}
+            }   
+        }
+        else {
+            return null
+        }
+
+    }
+
+      function drawNetwork(hits){
+           // create an array with nodes
+        var nodes = new vis.DataSet(hits.map(getHitNode).concat([
+            {
+                "id": 20, "label": "VVD", "color": "orange", "size": 50, 
+                "heightConstraint": {"minimum": 50},
+                "widthConstraint": {"minimum": 50}
+        }]));
+       
+        var edges = new vis.DataSet(hits.map(function(hit, index){ return {"from":index, "to": 20}}))
+
+        // create a network
+        var container = document.getElementById("results");
+        var data = {
+            nodes: nodes,
+            edges: edges,
+        };
+        var options = {"nodes": { "borderWidth": 0 }};
+        var network = new vis.Network(container, data, options);
+      }
+
       function performQuery(){
         queryText = document.getElementById("query").value
         search({"query" : queryText}).then((res)=>{
           $("#results").empty()
           console.log(res.data)
-          for(var hit of res.data.hits){
-            var obj = $("<div>")
-            obj.attr('class', "hit")
-            $("#results").append(obj)
-            var party = hit.objectID.split("-")[0]
-            obj.html("<p>"+ _find_highlight(hit) + "</p>")
-          }
+          drawNetwork(res.data.hits)
         })
       }
       $("#query").on("keypress", function(event) {
@@ -129,14 +163,21 @@
 
     function _find_highlight(hit){
         var text = hit.text
-        var highlightText  = hit._highlightResult.text.value
+        var highlightText  = hit._highlightResult.text
+        if(highlightText){
+            highlightText = highlightText.value
+        }
+        else{
+            return false
+        }
         var highLightSentences = highlightText.split(".")
         for(sentence of highLightSentences){
             if(sentence.includes("<em>")){
-                return sentence.replace("<em>", "<b>").replace("</em>", "</b>")
+                return sentence.replace("<em>", "").replace("</em>", "").substring(0, 10) + "..."
             }
         }
     }
+    
     </script>
   </body>
 </html>
