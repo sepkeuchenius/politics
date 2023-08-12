@@ -76,10 +76,10 @@
     }
     .hit {
       background-color: white;
+      width:300px;
       padding:30px;
       border-radius:10px;
-      width:50px;
-      display:inline-block;
+      display:inline-grid;
       margin:5px;
       text-align: center;
     }
@@ -107,15 +107,36 @@
         queryText = document.getElementById("query").value
         search({"query" : queryText}).then((res)=>{
           $("#results").empty()
+          console.log(res.data)
           for(var hit of res.data.hits){
             var obj = $("<div>")
             obj.attr('class', "hit")
             $("#results").append(obj)
-            obj.text(hit.objectID)
+            var party = hit.objectID.split("-")[0]
+            obj.html("<p>"+ _find_highlight(hit) + "</p>")
           }
         })
       }
+      $("#query").on("keypress", function(event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+          // Cancel the default action, if needed
+          event.preventDefault();
+          // Trigger the button element with a click
+          document.getElementById("search-button").click();
+        }
+      });
 
+    function _find_highlight(hit){
+        var text = hit.text
+        var highlightText  = hit._highlightResult.text.value
+        var highLightSentences = highlightText.split(".")
+        for(sentence of highLightSentences){
+            if(sentence.includes("<em>")){
+                return sentence.replace("<em>", "<b>").replace("</em>", "</b>")
+            }
+        }
+    }
     </script>
   </body>
 </html>
