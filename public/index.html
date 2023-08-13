@@ -127,15 +127,12 @@
 
       function performQuery(){
         queryText = document.getElementById("query").value
-        const code=input("Code")
-        if(code == "43434343"){
           // i know this is shitty security but it's to prevent bots from calling the function for now.
-          search({"query" : queryText, "code": code}).then((res)=>{
-            $("#results").empty()
-            console.log(res.data)
-            drawNetwork(res.data)
-          })
-        }
+        search({"query" : queryText, "code": code}).then((res)=>{
+          $("#results").empty()
+          console.log(res.data)
+          drawNetwork(res.data)
+        })
         
       }
       $("#query").on("keypress", function(event) {
