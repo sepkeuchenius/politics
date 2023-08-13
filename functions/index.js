@@ -42,7 +42,7 @@ function _generate_node(hit){
     "id": hit.objectID,
     "label": _find_highlight(hit).substring(0, 10) + "...",
     "heightConstraint": {"minimum": 30},
-    "title": _find_highlight(hit),
+    "title": hit.text,
   }
 }
 
@@ -54,6 +54,7 @@ function generate_graph_from_hits(hits){
   var party_nodes = parties.map(_generate_party_node)
   nodes = nodes.concat(party_nodes)
   for(hit of hits){
+    hit.text = _clean_text(hit.text)
     node = _generate_node(hit)
     nodes.push(node)
     edge = {"from": hit.objectID, "to": parties.indexOf(hit.party)}
@@ -63,7 +64,6 @@ function generate_graph_from_hits(hits){
 }
 
 function _find_highlight(hit){
-  var text = hit.text
   var highlightText  = hit._highlightResult.text
   if(highlightText){
       highlightText = highlightText.value
@@ -74,8 +74,15 @@ function _find_highlight(hit){
   var highLightSentences = highlightText.split(".")
   for(sentence of highLightSentences){
       if(sentence.includes("<em>")){
-          var filteredSentence = sentence.replace("<em>", "").replace("</em>", "")
-          return filteredSentence
-      }
+        var filteredSentence = sentence
+        while(filteredSentence.includes("<em>")){     
+          filteredSentence = filteredSentence.replace("<em>", "").replace("</em>", "")
+        }
+        return _clean_text(filteredSentence)
+    }
   }
+}
+
+function _clean_text(str){
+  return str.replace(/[^\w\s\.\:\,\;]/gi, '')
 }
