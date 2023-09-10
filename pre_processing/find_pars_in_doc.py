@@ -1,12 +1,22 @@
 import fitz
 import json
 from firebase_admin import credentials, firestore, initialize_app
-PARTY = "VVD"
-from utils import DOCS, CONFIGS, _get_doc_paragraphs
+PARTY = input("Provide party you want to analyze the program of: ")
+YEAR = input("Provide the year of the elecion: ")
+from utils import PartyConfig,  _get_doc_paragraphs
 
-DOC = fitz.open(DOCS[PARTY])
+party_config = PartyConfig(PARTY, YEAR)
 
-pars = _get_doc_paragraphs(DOC, PARTY)
+DOC = fitz.open(party_config.doc)
 
-with open(f"preprocessing/out/pars_{PARTY}.json", "w+") as file:
+pars = [{
+        "text": par,
+        "party": PARTY,
+        "year": YEAR,
+        "index": index,
+        "type": "program"
+    }
+    for index,par in enumerate(_get_doc_paragraphs(DOC, config=party_config))]
+
+with open(party_config.output_path, "w+") as file:
     json.dump(pars, file, indent=2)
