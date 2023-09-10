@@ -123,7 +123,10 @@
 
     }
 
-      
+      var NODES = []
+      var CURRENT_NODES = []
+      var CURRENT_EDGES = []
+      var EDGES = []
 
       function performQuery(){
         queryText = document.getElementById("query").value
@@ -131,7 +134,12 @@
         search({"query" : queryText}).then((res)=>{
           $("#results").empty()
           console.log(res.data)
-          drawNetwork(res.data)
+          var nodes = res.data[0]
+          NODES = nodes
+          var edges = res.data[1]
+          EDGES = edges          
+          var root_nodes = nodes.filter((node) => {return node.root})
+          drawNetwork(root_nodes, edges)
         })
         
       }
@@ -145,12 +153,15 @@
         }
       });
       
-    function drawNetwork(data){
+    
+
+    function drawNetwork(nodes, edges){
       // create an array with nodes
 
-      var nodes = new vis.DataSet(data[0]);
-
-      var edges = new vis.DataSet(data[1])
+      CURRENT_NODES = nodes
+      CURRENT_EDGES = edges
+      var nodes = new vis.DataSet(nodes);
+      var edges = new vis.DataSet(edges)
 
       // create a network
       var container = document.getElementById("results");
@@ -160,9 +171,38 @@
       };
       var options = {"nodes": { "borderWidth": 0 }};
       var network = new vis.Network(container, data, options);
+      network.on( 'click', function(properties) {
+        _handleClick(properties, nodes, edges)
+      });
     }
 
+    function _handleClick(properties, nodes, edges){
+      var ids = properties.nodes;
+      var clickedNodes = nodes.get(ids);
+      console.log('clicked nodes:', clickedNodes);
+      if(clickedNodes.length > 0){
+        expandingNodes = _getConnectingNodes(clickedNodes[0])
+        if (expandingNodes.length > 0) {
+          console.log(expandingNodes)
+          if(expandingNodes.filter((expandingNode)=>{return CURRENT_NODES.includes(expandingNode)}).length == expandingNodes.length){
+            nodes.remove(expandingNodes)
+            CURRENT_NODES = CURRENT_NODES.filter((currentNode) =>{ return ! expandingNodes.includes(currentNode)})
+          }
+          else{
+            CURRENT_NODES = CURRENT_NODES.concat(expandingNodes)
+            // drawNetwork(CURRENT_NODES.concat(expandingNodes), CURRENT_EDGES)
+            nodes.add(expandingNodes)
+          }
+          
+        }
+      }
+    }
     
+    function _getConnectingNodes(rootNode){
+      const connectingEdges = EDGES.filter((edge) => {return rootNode.id == edge.to}).map((edge) => {return edge.from })
+      return NODES.filter((node) => {return connectingEdges.includes(node.id)})
+    }
+
     
     </script>
   </body>
