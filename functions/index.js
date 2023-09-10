@@ -10,6 +10,9 @@ exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(
   });
 });
 
+function _get_root_size(root, hits){
+  return (hits.filter((hit) => {return hit.member == root.label || hit.party == root.label}).length / hits.length) * 250
+}
 
 function _get_hit_parties(hits){
   return hits.map(function(hit){return hit.party}).filter(function(party, index, parties){return party && parties.indexOf(party) == index})
@@ -24,19 +27,28 @@ function _generate_root_node(party, index){
     "id": index,
     "label": party,
     "color": "orange", 
-    "size": 50, 
-    "heightConstraint": {"minimum": 50},
-    "widthConstraint": {"minimum": 50}
+    "heightConstraint": {"minimum": 40},
+    "widthConstraint": {"minimum": 40},
+    "root": true
   }
 }
 
 function _generate_node(hit){
   return {
+    "root": false,
     "id": hit.objectID,
     "label": _find_highlight(hit).substring(0, 10) + "...",
     "heightConstraint": {"minimum": 30},
     "title": hit.text,
-  }
+    "shape": "box",
+    "margin": 10,
+    "color": {
+      "background": "#F4F4F4",
+      "border": "#11999E",
+      "highlight": "#11999E"
+    },
+    "borderWidth": 1
+    }
 }
 
 function generate_graph_from_hits(hits){
@@ -45,6 +57,11 @@ function generate_graph_from_hits(hits){
   var hits = hits.filter(_find_highlight)
   var roots = _get_hit_parties(hits).concat(_get_hit_members(hits))
   var root_nodes = roots.map(_generate_root_node)
+  root_nodes.forEach(root => {
+    root.heightConstraint.minimum = Math.max(root.heightConstraint.minimum, _get_root_size(root, hits))
+    root.gravity = _get_root_size(root, hits) / 250
+    root.widthConstraint.minimum = Math.max(root.heightConstraint.minimum, _get_root_size(root, hits))
+  })
   nodes = nodes.concat(root_nodes)
   for(hit of hits){
     hit.text = _clean_text(hit.text)
