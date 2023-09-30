@@ -29,12 +29,14 @@ LEGISLATION_FILTER = f"Soort eq '{LEGISLATION}' and {CHAMBER_FILTER}"
 ORDER_BY = "DocumentNummer desc"
 
 
-def _get_motions_metadata(page_number=0) -> typing.Tuple[typing.List[dict], str]:
-    expansions = f"$expand={CASE}($expand={DECISION}($select={DECISION}{TYPE},{VOTE},{DECISION}{TEXT};$expand={VOTE}($select={ACTOR}{NAME},{ACTOR}{PARTY},{PARTY}{SIZE},{TYPE}))),{DOCUMENT}{ACTOR}($select={ACTOR}{NAME},{ACTOR}{PARTY})"
-    selections = "$select=Id,Titel,Onderwerp,Datum"
-    docs: dict = requests.get(
-        f"{BASE_URL}/{DOCUMENT}?$filter={quote(MOTION_FILTER)}&$orderby={quote(ORDER_BY)}&{selections}&$skip={250*page_number}&{expansions}"
-    ).json()
+def _get_motions_metadata(page_number=0, next_link=None) -> typing.Tuple[typing.List[dict], str]:
+    if not next_link:     
+        expansions = f"$expand={CASE}($expand={DECISION}($select={DECISION}{TYPE},{VOTE},{DECISION}{TEXT};$expand={VOTE}($select={ACTOR}{NAME},{ACTOR}{PARTY},{PARTY}{SIZE},{TYPE}))),{DOCUMENT}{ACTOR}($select={ACTOR}{NAME},{ACTOR}{PARTY})"
+        selections = "$select=Id,Titel,Onderwerp,Datum"
+        link = f"{BASE_URL}/{DOCUMENT}?$filter={quote(MOTION_FILTER)}&$orderby={quote(ORDER_BY)}&{selections}&$skip={250*page_number}&{expansions}"
+    else:
+        link = next_link
+    docs: dict = requests.get(link).json()
     return docs.get("value"), docs.get("@odata.nextLink")
 
 
