@@ -6,20 +6,39 @@ const index = client.initIndex('parties');
 
 exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(async (data, context) => {
   return await index.search(data.query).then((res)=>{
-    return generate_graph_from_hits(res.hits);
+    return _generate_parties_overview(res.hits);
   });
 });
+
+
+function _get_unique_elements(list){
+  return list.filter((item, index, items) => {return items.indexOf(item) == index})
+}
+
 
 function _get_root_size(root, hits){
   return (hits.filter((hit) => {return hit.member == root.label || hit.party == root.label}).length / hits.length) * 250
 }
 
 function _get_hit_parties(hits){
-  return hits.map(function(hit){return hit.party}).filter(function(party, index, parties){return party && parties.indexOf(party) == index})
+  var parties = []
+  for(hit of hits){
+    if(hit.party) {
+      parties.push(hit.party)
+    }
+    else if(hit.parties){
+      parties = parties.concat(hit.parties)
+    } 
+  }
+  return _get_unique_elements(parties)
 }
 
 function _get_hit_members(hits){
-  return hits.map(function(hit){return hit.member}).filter(function(member, index, members){return member && members.indexOf(member) == index})
+  var members = []
+  for(hit of hits){
+    members = members.concat(hit.members)
+  }
+  return _get_unique_elements(members)
 }
 
 function _generate_root_node(party, index){
@@ -98,6 +117,33 @@ function _find_highlight(hit){
     }
   }
 }
+
+
+function _generate_parties_overview(hits){
+  var nodes = []
+  var edges = []
+  const parties  = _get_hit_parties(hits)
+  console.log(parties)
+  for(party_index in parties){
+    party = parties[party_index]
+    //find all hits for this party
+    party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
+    root_node = _generate_root_node(party, party_index)
+    nodes.push(root_node)
+    for(hit of party_hits){
+      hit.text = _clean_text(hit.text)
+      node = _generate_node(hit)
+      if(!nodes.map((node) => {return node.id }).includes(node.id)){
+        nodes.push(node)
+      }
+      edge = {"from": hit.objectID, "to": party_index}  
+      edges.push(edge)
+    }
+  }
+  console.log(nodes,edges)
+  return [nodes,edges]
+}
+
 
 function _clean_text(str){
   return str.replace(/[^\w\s\.\:\,\;]/gi, '')
