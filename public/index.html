@@ -1,68 +1,128 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Politics Navigator</title>
-    <script
-    type="text/javascript"
-    src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
-  ></script>
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/9.20.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/9.20.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/9.20.0/firebase-performance-compat.js"></script>
-    <!-- 
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Politics Navigator</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <!-- update the version number as needed -->
+  <script defer src="/__/firebase/9.20.0/firebase-app-compat.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <script defer src="/__/firebase/9.20.0/firebase-auth-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-database-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-firestore-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-functions-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-messaging-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-storage-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-analytics-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-remote-config-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-performance-compat.js"></script>
+  <!-- 
       initialize the SDK after all desired features are loaded, set useEmulator to false
       to avoid connecting the SDK to running emulators.
     -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-      #query {
-        width: 80vw;
-        position: absolute;
-        left: 10vw;
-        top: 15vh;
-        height: 40px;
-        border-radius: 20px;
-        border: none;
-        outline: none;
-        padding: 0 17px;
-        font-size: 16px;
-        box-sizing: border-box;
-      }
-      #search-button {
-        position: absolute;
-        top: calc(15vh + 4px);
-        width: 100px;
-        left: calc(90vw - 100px - 5px);
-        border: none;
-        background: #a3d7c5;
-        padding: 9px 10px;
-        border-radius: 20px;
-        cursor: pointer;
+  <style media="screen">
+    body {
+      background: #ECEFF1;
+      color: rgba(0, 0, 0, 0.87);
+      font-family: Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
+
+    #message {
+      background: white;
+      max-width: 360px;
+      margin: 100px auto 16px;
+      padding: 32px 24px;
+      border-radius: 3px;
+    }
+
+    #message h2 {
+      color: #ffa100;
+      font-weight: bold;
+      font-size: 16px;
+      margin: 0 0 8px;
+    }
+
+    #message h1 {
+      font-size: 22px;
+      font-weight: 300;
+      color: rgba(0, 0, 0, 0.6);
+      margin: 0 0 16px;
+    }
+
+    #message p {
+      line-height: 140%;
+      margin: 16px 0 24px;
+      font-size: 14px;
+    }
+
+    #message a {
+      display: block;
+      text-align: center;
+      background: #039be5;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: white;
+      padding: 16px;
+      border-radius: 4px;
+    }
+
+    #message,
+    #message a {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+    #load {
+      color: rgba(0, 0, 0, 0.4);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+
+      body,
+      #message {
+        margin-top: 0;
+        background: white;
+        box-shadow: none;
+      }
+
+      body {
+        border-top: 16px solid #ffa100;
+      }
+    }
+
+    #query {
+      width: 80vw;
+      position: absolute;
+      left: 10vw;
+      top: 15vh;
+      height: 40px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      padding: 0 17px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    #search-button {
+      position: absolute;
+      top: calc(15vh + 4px);
+      width: 100px;
+      left: calc(90vw - 100px - 5px);
+      border: none;
+      background: #a3d7c5;
+      padding: 9px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
     #header {
       position: absolute;
       text-align: center;
@@ -71,91 +131,96 @@
       top: 1vh;
       font-size: 50px;
     }
+
     #results {
       position: absolute;
-      top:calc(15vh + 40px);
-      width:100vw;
-      left:0vw;
-      height: 100vh;      
+      top: calc(15vh + 40px);
+      width: 80vw;
+      left: 0vw;
+      height: 100%;
     }
+
     .hit {
       background-color: white;
-      width:300px;
-      padding:30px;
-      border-radius:10px;
-      display:inline-grid;
-      margin:5px;
+      width: 300px;
+      padding: 30px;
+      border-radius: 10px;
+      display: inline-grid;
+      margin: 5px;
       text-align: center;
     }
-    </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
-  </head>
-  <body>
-    <h1 id="header">Politics Navigator</h1>
-    <input type="text" id="query" placeholder="query" /><button onclick="performQuery()" id="search-button">SEARCH</button>
-    <div id="results">
+</head>
 
-    </div>
-    <div id="mynetwork"></div>
+<body>
+  <h1 id="header">Politics Navigator</h1>
+  <input type="text" id="query" placeholder="query" /><button onclick="performQuery()"
+    id="search-button">SEARCH</button>
+  <div id="results">
 
-    <script>
-      var search;
+  </div>
+  <div id="mynetwork"></div>
 
-      document.addEventListener('DOMContentLoaded', function() {
-        search  = firebase.functions().httpsCallable('search');
-        $("#query").focus()
-      });
+  <script>
+    var search;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      search = firebase.functions().httpsCallable('search');
+      $("#query").focus()
+    });
 
 
 
-      function getHitNode(hit, index){
-        var [highlightText, highlightSentence, paragraph] = _find_highlight(hit)
-        if(highlightText){
-            return {"label": highlightText, "id": index, 
-                "heightConstraint": {"minimum": 30},
-                "title": highlightSentence,
-            }   
+    function getHitNode(hit, index) {
+      var [highlightText, highlightSentence, paragraph] = _find_highlight(hit)
+      if (highlightText) {
+        return {
+          "label": highlightText, "id": index,
+          "heightConstraint": { "minimum": 30 },
+          "title": highlightSentence,
         }
-        else {
-            return null
-        }
+      }
+      else {
+        return null
+      }
 
     }
 
-      var NODES = []
-      var CURRENT_NODES = []
-      var CURRENT_EDGES = []
-      var EDGES = []
+    var NODES = []
+    var CURRENT_NODES = []
+    var CURRENT_EDGES = []
+    var EDGES = []
 
-      function performQuery(){
-        queryText = document.getElementById("query").value
-          // i know this is shitty security but it's to prevent bots from calling the function for now.
-        search({"query" : queryText}).then((res)=>{
-          $("#results").empty()
-          console.log(res.data)
-          var nodes = res.data[0]
-          NODES = nodes
-          var edges = res.data[1]
-          EDGES = edges          
-          var root_nodes = nodes.filter((node) => {return node.root})
-          drawNetwork(root_nodes, edges)
-        })
-        
+    function performQuery() {
+      queryText = document.getElementById("query").value
+      // i know this is shitty security but it's to prevent bots from calling the function for now.
+      search({ "query": queryText }).then((res) => {
+        $("#results").empty()
+        console.log(res.data)
+        var nodes = res.data[0]
+        NODES = nodes
+        var edges = res.data[1]
+        EDGES = edges
+        var root_nodes = nodes.filter((node) => { return node.root })
+        drawNetwork(root_nodes, edges)
+      })
+
+    }
+    $("#query").on("keypress", function (event) {
+      // If the user presses the "Enter" key on the keyboard
+      if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("search-button").click();
       }
-      $("#query").on("keypress", function(event) {
-        // If the user presses the "Enter" key on the keyboard
-        if (event.key === "Enter") {
-          // Cancel the default action, if needed
-          event.preventDefault();
-          // Trigger the button element with a click
-          document.getElementById("search-button").click();
-        }
-      });
-      
-    
+    });
 
-    function drawNetwork(nodes, edges){
+
+
+    function drawNetwork(nodes, edges) {
       // create an array with nodes
 
       CURRENT_NODES = nodes
@@ -169,41 +234,43 @@
         nodes: nodes,
         edges: edges,
       };
-      var options = {"nodes": { "borderWidth": 0 }};
+      var options = { "nodes": { "borderWidth": 0 } };
       var network = new vis.Network(container, data, options);
-      network.on( 'click', function(properties) {
+      network.on('click', function (properties) {
         _handleClick(properties, nodes, edges)
       });
     }
 
-    function _handleClick(properties, nodes, edges){
+    function _handleClick(properties, nodes, edges) {
       var ids = properties.nodes;
       var clickedNodes = nodes.get(ids);
       console.log('clicked nodes:', clickedNodes);
-      if(clickedNodes.length > 0){
+      if (clickedNodes.length > 0) {
         expandingNodes = _getConnectingNodes(clickedNodes[0])
         if (expandingNodes.length > 0) {
           console.log(expandingNodes)
-          if(expandingNodes.filter((expandingNode)=>{return CURRENT_NODES.includes(expandingNode)}).length == expandingNodes.length){
+          if (expandingNodes.filter((expandingNode) => { return CURRENT_NODES.includes(expandingNode) }).length == expandingNodes.length) {
             nodes.remove(expandingNodes)
-            CURRENT_NODES = CURRENT_NODES.filter((currentNode) =>{ return ! expandingNodes.includes(currentNode)})
+            CURRENT_NODES = CURRENT_NODES.filter((currentNode) => { return !expandingNodes.includes(currentNode) })
           }
-          else{
+          else {
+            expandingNodes = expandingNodes.filter((expandingNode) => { return !CURRENT_NODES.includes(expandingNode) })
             CURRENT_NODES = CURRENT_NODES.concat(expandingNodes)
             // drawNetwork(CURRENT_NODES.concat(expandingNodes), CURRENT_EDGES)
             nodes.add(expandingNodes)
           }
-          
+
         }
       }
     }
-    
-    function _getConnectingNodes(rootNode){
-      const connectingEdges = EDGES.filter((edge) => {return rootNode.id == edge.to}).map((edge) => {return edge.from })
-      return NODES.filter((node) => {return connectingEdges.includes(node.id)})
+
+    function _getConnectingNodes(rootNode) {
+      const connectingEdges = EDGES.filter((edge) => { return rootNode.id == edge.to }).map((edge) => { return edge.from })
+      return NODES.filter((node) => { return connectingEdges.includes(node.id) })
     }
 
-    
-    </script>
-  </body>
+
+  </script>
+</body>
+
 </html>
