@@ -10,7 +10,7 @@ COLLECTION_DOCS =  list(COLLECTION.list_documents())
 class MotionConfig:
     def __init__(self, doc):
         self.doc = doc
-        self.output_path = f"pre_processing/out/motions/{doc.split('/')[-1]}"
+        self.output_path = f"pre_processing/out/motions/{doc.get('Id').split('/')[-1]}"
         self.config = CONFIGS["MOTION"]
 
 class PartyConfig:

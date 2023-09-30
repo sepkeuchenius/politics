@@ -1,24 +1,39 @@
 import requests
-import fitz
 import json
-from utils import _get_doc_paragraphs
+from utils import _get_doc_paragraphs, MotionConfig
+from chamber_api_utils import (
+  _get_motions_metadata,
+  _get_motion_text,
+  _get_decision_status,
+  _get_decision_votes
+)
+from chamber_api_utils import *
 
-docs = requests.get("https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Document?$filter=Soort%20eq%20%27Motie%27&$orderby=DocumentNummer%20asc").json()
+motions, next_link = _get_motions_metadata()
 
-for doc in docs["value"]:
-    if doc.get("Kamer") != 2: continue #just the second chamber of parliament
-    pdf_content = requests.get(f"https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0/Document({doc['Id']})/resource").content
-    pdf_document = fitz.open(stream=pdf_content)
-    first_page = next(pdf_document.pages())
-    pars = _get_doc_paragraphs(pdf_document, "MOTION")
-    complete_text = "\n".join(pars)
-    if not "MOTIE VAN HET LID" in complete_text:
-        #TODO: parse more than one member that filed the motion
-        continue
-    member = complete_text.split("MOTIE VAN HET LID ")[1].split("\n")[0].replace(" C.S.", "")
-    with open(f"data/motions/{doc['Id']}.json", "w+") as file:
-        doc: dict = doc
-        doc.update({"text": complete_text})
-        doc.update({"member": member[0] + member.lower()[1:]})
-        file.write(json.dumps(doc))
+for motion in motions:
+    motion_text = _get_motion_text(motion)
+    motion_actors:list = motion.pop(f"{DOCUMENT}{ACTOR}")
+    motion_cases:list = motion.pop(CASE) #remove the case file to store elsewhere
+    motion_main_case = None
+    for motion_case in motion_cases:
+        if len(motion_case.get(DECISION)) > 0:
+            motion_main_case = motion_case
+            break
+    with open(f"data/motions/{motion['Id']}.json", "w+") as file:
+      motion.update(
+          {
+              "text": motion_text,
+              "members": [
+                  motion_actor.get(f"{ACTOR}{NAME}") for motion_actor in motion_actors
+              ],
+              "parties": [
+                  motion_actor.get(f"{ACTOR}{PARTY}") for motion_actor in motion_actors
+              ],
+              "status": _get_decision_status(motion_main_case) if motion_main_case else "",
+              "votes_for": _get_decision_votes(motion_main_case, voted_in_favor=True),
+              "votes_against": _get_decision_votes(motion_main_case, voted_in_favor=False)
+          }
+      )
 
+      file.write(json.dumps(motion, indent=2))
