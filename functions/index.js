@@ -1,9 +1,12 @@
 const functions = require("firebase-functions");
+const { getStorage } = require('firebase-admin/storage');
 const algoliasearch = require("algoliasearch");
-const { object } = require("firebase-functions/v1/storage");
 const client = algoliasearch('PD7R6XVZ97', process.env.ALGOLIA_API_KEY);
 const index = client.initIndex('parties');
+const { initializeApp } = require('firebase-admin/app');
 
+initializeApp()
+const bucket = getStorage().bucket()
 exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(async (data, context) => {
   return await index.search(data.query).then((res)=>{
     return _generate_parties_overview(res.hits);
@@ -12,7 +15,9 @@ exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(
 
 
 function _get_unique_elements(list){
-  return list.filter((item, index, items) => {return items.indexOf(item) == index})
+  //filter null items and lowercase everything
+  const lowercaseItems = list.filter((item) => {return item != null}).map((item) => {return item.toLowerCase()})
+  return list.filter((item, index, items) => {return item && lowercaseItems.indexOf(item.toLowerCase()) == index})
 }
 
 
@@ -41,15 +46,20 @@ function _get_hit_members(hits){
   return _get_unique_elements(members)
 }
 
-function _generate_root_node(party, index){
-  return {
-    "id": index,
+function _generate_root_node(party, pic_url=null){
+  var node = {
+    "id": party,
     "label": party,
     "color": "orange", 
     "heightConstraint": {"minimum": 40},
     "widthConstraint": {"minimum": 40},
     "root": true
   }
+  if(pic_url){
+    node["shape"] = "image";
+    node["image"] = pic_url
+  }
+  return node
 }
 
 function _generate_node(hit){
@@ -116,19 +126,45 @@ function _find_highlight(hit){
         return _clean_text(filteredSentence)
     }
   }
+  return highlightText;
+}
+
+function _generate_member_node(member_name){
+  return {
+    "root": false,
+    "id": member_name,
+    "label": member_name,
+    "heightConstraint": {"minimum": 30},
+    "title": member_name,
+    "shape": "circle",
+    "margin": 10,
+    "color": {
+      "background": "#FFF9E0",
+      "border": "#11999E",
+      "highlight": "#11999E"
+    },
+    "borderWidth": 1
+    }
 }
 
 
-function _generate_parties_overview(hits){
+async function _generate_parties_overview(hits){
   var nodes = []
   var edges = []
+  pics = await bucket.getFiles()
   const parties  = _get_hit_parties(hits)
   console.log(parties)
   for(party_index in parties){
+    var party_pic = null
     party = parties[party_index]
+    for(pic of pics[0]){
+      if(pic.name.toLowerCase().includes(party.toLowerCase())){
+        party_pic = pic.publicUrl()
+      }
+    }
     //find all hits for this party
     party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
-    root_node = _generate_root_node(party, party_index)
+    root_node = _generate_root_node(party, pic_url = party_pic)
     nodes.push(root_node)
     for(hit of party_hits){
       hit.text = _clean_text(hit.text)
@@ -136,11 +172,21 @@ function _generate_parties_overview(hits){
       if(!nodes.map((node) => {return node.id }).includes(node.id)){
         nodes.push(node)
       }
-      edge = {"from": hit.objectID, "to": party_index}  
+      edge = {"from": hit.objectID, "to": party}  
       edges.push(edge)
+      if(hit.members){
+        for(member of hit.members){
+          member_node = _generate_member_node(member)
+          if(!nodes.map((node) => {return node.id }).includes(member_node.id)){
+            nodes.push(member_node)
+          }
+          if(!edges.map((edge) => {return edge.from + edge.to}).includes(member+hit.objectID)){
+            edges.push({"from": member, "to": hit.objectID})
+          }
+        }
+      }
     }
   }
-  console.log(nodes,edges)
   return [nodes,edges]
 }
 
