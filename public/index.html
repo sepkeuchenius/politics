@@ -218,7 +218,7 @@
       }
     });
 
-
+    var doubleClick = new Date().getTime()
 
     function drawNetwork(nodes, edges) {
       // create an array with nodes
@@ -234,26 +234,84 @@
         nodes: nodes,
         edges: edges,
       };
-      var options = { "nodes": { "borderWidth": 0 } };
+      var options = {
+        "nodes": { "borderWidth": 0 },
+        physics: {
+          barnesHut: {
+            enabled: true,
+            gravitationalConstant: -2000,
+            centralGravity: 0.1,
+            springLength: 95,
+            springConstant: 0.04,
+            damping: 0.09
+          },
+          repulsion: {
+            centralGravity: 0.1,
+            springLength: 50,
+            springConstant: 0.05,
+            nodeDistance: 100,
+            damping: 0.09
+          },
+          hierarchicalRepulsion: {
+            centralGravity: 0.5,
+            springLength: 150,
+            springConstant: 0.01,
+            nodeDistance: 60,
+            damping: 0.09
+          }
+        }
+      }
       var network = new vis.Network(container, data, options);
       network.on('click', function (properties) {
         _handleClick(properties, nodes, edges)
       });
+      network.on('doubleClick', function (properties) {
+        _handleDoubleClick(properties, nodes, edges)
+      });
     }
 
-    function _handleClick(properties, nodes, edges) {
+    async function _handleDoubleClick(properties, nodes, edges){
+      doubleClick = new Date().getTime()
       var ids = properties.nodes;
       var clickedNodes = nodes.get(ids);
       console.log('clicked nodes:', clickedNodes);
       if (clickedNodes.length > 0) {
+        const clickedNode = clickedNodes[0]
+        search({ "query": clickedNode.label }).then((res)=>{
+          const new_nodes = res.data[0]
+          const new_edges = res.data[1]
+          ROOT_NODES = _difference(new_nodes.filter((node) => { return node.root }), ROOT_NODES)
+          NODES = _difference(new_nodes, NODES)
+          EDGES = _difference(new_edges, EDGES)
+          expandNetwork(nodes, edges, ROOT_NODES, new_edges)
+          _open_node(clickedNode, nodes)
+        })
+      }
+    }
+
+    function expandNetwork(nodes, edges, newNodes, newEdges){
+      console.log(nodes, edges, newNodes, newEdges)
+      nodes.add(_difference(_unique(newNodes), CURRENT_NODES));
+      edges.add(_difference(_unique(newEdges), CURRENT_EDGES));
+      CURRENT_NODES = _union(CURRENT_NODES, newNodes)
+      CURRENT_EDGES = _union(CURRENT_EDGES, newEdges)
+    }
+
+    async function _handleClick(properties, nodes, edges) {
+      setTimeout(() => {
+        if(new Date().getTime() - doubleClick > 400){
+          var ids = properties.nodes;
+          var clickedNodes = nodes.get(ids);
+          console.log('clicked nodes:', clickedNodes);
+          if (clickedNodes.length > 0) {
             const clickedNode = clickedNodes[0]
             expandingNodes = _getConnectingNodes(clickedNode)
-        if (expandingNodes.length > 0) {
-          console.log(expandingNodes)
-          if (expandingNodes.filter((expandingNode) => { return CURRENT_NODES.includes(expandingNode) }).length == expandingNodes.length) {
+            if (expandingNodes.length > 0) {
+              console.log(expandingNodes)
+              if (expandingNodes.filter((expandingNode) => { return CURRENT_NODES.includes(expandingNode) }).length == expandingNodes.length) {
                 _close_node(clickedNode, nodes)
-          }
-          else {
+              }
+              else {
                 for(node of ROOT_NODES){
                   if(node != clickedNode && !expandingNodes.includes(node)){
                     _close_node(node, nodes)
