@@ -80,34 +80,6 @@ function _generate_node(hit){
     }
 }
 
-function generate_graph_from_hits(hits){
-  var nodes = []
-  var edges = []
-  var hits = hits.filter(_find_highlight)
-  var roots = _get_hit_parties(hits).concat(_get_hit_members(hits))
-  var root_nodes = roots.map(_generate_root_node)
-  root_nodes.forEach(root => {
-    root.heightConstraint.minimum = Math.max(root.heightConstraint.minimum, _get_root_size(root, hits))
-    root.gravity = _get_root_size(root, hits) / 250
-    root.widthConstraint.minimum = Math.max(root.heightConstraint.minimum, _get_root_size(root, hits))
-  })
-  nodes = nodes.concat(root_nodes)
-  for(hit of hits){
-    hit.text = _clean_text(hit.text)
-    node = _generate_node(hit)
-    nodes.push(node)
-    if (hit.hasOwnProperty("party")){
-      edge = {"from": hit.objectID, "to": roots.indexOf(hit.party)}
-    }
-    else {
-      edge = {"from": hit.objectID, "to": roots.indexOf(hit.member)}
-
-    }
-    edges.push(edge)
-  }
-  return [nodes, edges]
-}
-
 function _find_highlight(hit){
   var highlightText  = hit._highlightResult.text
   if(highlightText){
@@ -149,11 +121,11 @@ function _generate_member_node(member_name){
 
 
 async function _generate_parties_overview(hits){
-  var nodes = []
-  var edges = []
+  var hits_per_party = {}
+  var pics_per_party = {}
+  var total_hits = 0
   pics = await bucket.getFiles()
   const parties  = _get_hit_parties(hits)
-  console.log(parties)
   for(party_index in parties){
     var party_pic = null
     party = parties[party_index]
@@ -164,30 +136,11 @@ async function _generate_parties_overview(hits){
     }
     //find all hits for this party
     party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
-    root_node = _generate_root_node(party, pic_url = party_pic)
-    nodes.push(root_node)
-    for(hit of party_hits){
-      hit.text = _clean_text(hit.text)
-      node = _generate_node(hit)
-      if(!nodes.map((node) => {return node.id }).includes(node.id)){
-        nodes.push(node)
-      }
-      edge = {"from": hit.objectID, "to": party}  
-      edges.push(edge)
-      if(hit.members){
-        for(member of hit.members){
-          member_node = _generate_member_node(member)
-          if(!nodes.map((node) => {return node.id }).includes(member_node.id)){
-            nodes.push(member_node)
-          }
-          if(!edges.map((edge) => {return edge.from + edge.to}).includes(member+hit.objectID)){
-            edges.push({"from": member, "to": hit.objectID})
-          }
-        }
-      }
-    }
+    hits_per_party[party] = party_hits
+    pics_per_party[party] = party_pic
+    total_hits += party_hits.length
   }
-  return [nodes,edges]
+  return [hits_per_party, pics_per_party, total_hits]
 }
 
 
