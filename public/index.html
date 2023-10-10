@@ -18,6 +18,9 @@
   <script defer src="/__/firebase/9.20.0/firebase-analytics-compat.js"></script>
   <script defer src="/__/firebase/9.20.0/firebase-remote-config-compat.js"></script>
   <script defer src="/__/firebase/9.20.0/firebase-performance-compat.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;800;900&display=swap" rel="stylesheet">
   <!-- 
       initialize the SDK after all desired features are loaded, set useEmulator to false
       to avoid connecting the SDK to running emulators.
@@ -31,8 +34,7 @@
 
 <body>
   <div id="search-box" style="height: 50px;">
-    <input type="text" id="query" placeholder="query" /><button onclick="performQuery()"
-    id="search-button">SEARCH</button>
+    <input type="text" id="query" placeholder="query" />
   </div>
   <div id="results">
   </div>
