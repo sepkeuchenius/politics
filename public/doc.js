@@ -75,39 +75,6 @@ class Motion extends Doc {
         }
         shape.append(motion_parties)
         shape.append(motion)
-        var votes_for_parties = $("<div>")
-        votes_for_parties.addClass("votes-for-parties")
-        var left = 0;
-        var top = 0;
-        for (var vote of doc.votes_for) {
-            var party_img = $("<img>")
-            party_img.addClass("motion-party")
-            party_img.css("background", `url('${PICS_PER_PARTY[vote.ActorFractie]}') center/80% no-repeat var(--white)`)
-            party_img.css("left", `${left}px`)
-            party_img.css("top", `${top}px`)
-            votes_for_parties.append(party_img)
-            var newPosition = calcPartyImagePosition(left, top)
-            left = newPosition[0]; top = newPosition[1];
-        }
-        votes_for_parties.hide()
-        shape.append(votes_for_parties)
-
-        var votes_against_parties = $("<div>")
-        votes_against_parties.addClass("votes-against-parties")
-        var left = 0;
-        var top = 0;
-        for (var vote of doc.votes_against) {
-            var party_img = $("<img>")
-            party_img.addClass("motion-party")
-            party_img.css("background", `url('${PICS_PER_PARTY[vote.ActorFractie]}') center/80% no-repeat var(--white)`)
-            party_img.css("left", `${left}px`)
-            party_img.css("top", `${top}px`)
-            votes_against_parties.append(party_img)
-            var newPosition = calcPartyImagePosition(left, top)
-            left = newPosition[0]; top = newPosition[1];
-        }
-        votes_against_parties.hide()
-        shape.append(votes_against_parties)
     }
 
 }
@@ -177,16 +144,58 @@ function openDoc() {
     $("#doc .members").append(docElement.find(".motion-parties").clone().show())
     if (doc.docType == "motion") {
         $("#doc .title").text(`Motie ${doc.data.Titel}`);
-        docElement.find(".status-tag").clone().insertAfter("#doc .members")
+
+        //we can clone the status tag from the original doc 
+        docElement.find(".status-tag").clone().insertAfter("#doc .votes-against")
 
         $("#doc .votes-for").html("Voor <br>")
-        $("#doc .votes-for").append(docElement.find(".votes-for-parties").clone().show())
 
         $("#doc .votes-against").html("Tegen <br>")
-        $("#doc .votes-against").append(docElement.find(".votes-against-parties").clone().show())
+
+        var votes_for_parties = $("<div>")
+        votes_for_parties.addClass("votes-for-parties")
+        var left = 0;
+        var top = 0;
+        for (var vote of doc.data.votes_for) {
+            var party_img = $("<img>")
+            party_img.addClass("motion-party")
+            party_img.css("background", `url('${PICS_PER_PARTY[vote.ActorFractie]}') center/80% no-repeat var(--white)`)
+            party_img.css("left", `${left}px`)
+            party_img.css("top", `${top}px`)
+            votes_for_parties.append(party_img)
+            var newPosition = calcPartyImagePosition(left, top)
+            left = newPosition[0]; top = newPosition[1];
+        }
+        $("#doc .votes-for").append(votes_for_parties)
+
+        var votes_against_parties = $("<div>")
+        votes_against_parties.addClass("votes-against-parties")
+        var left = 0;
+        var top = 0;
+        for (var vote of doc.data.votes_against) {
+            var party_img = $("<img>")
+            party_img.addClass("motion-party")
+            party_img.css("background", `url('${PICS_PER_PARTY[vote.ActorFractie]}') center/80% no-repeat var(--white)`)
+            party_img.css("left", `${left}px`)
+            party_img.css("top", `${top}px`)
+            votes_against_parties.append(party_img)
+            var newPosition = calcPartyImagePosition(left, top)
+            left = newPosition[0]; top = newPosition[1];
+        }
+        $("#doc .votes-against").append(votes_against_parties)
+
+        $("#doc .votes-for-parties").css("height", getHeight($("#doc .votes-for-parties")))
+        $("#doc .votes-against-parties").css("height", getHeight($("#doc .votes-against-parties")))
+        $("#doc .members").css("height", getHeight($("#doc .members")))
     }
     else {
         $("#doc .title").text("Programma")
         $("#doc .votes-for, .votes-against").remove()
     }
+}
+
+function getHeight($el){
+    const top = $el.offset().top
+    const bottom = $el.children().last().offset().top + $el.children().last().height()
+    return bottom - top;
 }

@@ -80,14 +80,14 @@ body {
 }
 #search-box {
   width:100%;
-  padding:30px 10%;
+  padding:30px calc(50% - 350px);
   position: relative;
   box-sizing: border-box;
 }
 .search{
   position: absolute;
   top:38px;
-  right:calc(10% + 20px);
+  right: calc(50% - 330px);
   color: var(--accent);
 }
 #query {
@@ -100,18 +100,6 @@ body {
   font-size: 16px;
   box-sizing: border-box;
   background:var(--second);
-}
-
-#search-button {
-  position: absolute;
-  top: 20px;
-  width: 100px;
-  left: calc(90vw - 100px - 5px);
-  border: none;
-  background: var(--second);
-  padding: 9px 10px;
-  border-radius: 20px;
-  cursor: pointer;
 }
 
 #header {
@@ -199,7 +187,6 @@ body {
 }
 .votes-for-parties , .votes-against-parties , .votes {
     position: relative;
-    height:40px;
 }
 
 .motion-party {
@@ -244,12 +231,12 @@ p {
   position:absolute;
   border-radius: 20px;
   display: none;
-  top: 10%;
+  top: 5%;
   position: fixed;
   left: calc(50% - 350px);
   width: 700px;
   padding: 30px 100px;
-  max-height: 80%;
+  max-height: 90%;
   overflow: auto;
   box-sizing: border-box;
 }
