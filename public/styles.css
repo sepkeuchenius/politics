@@ -160,11 +160,8 @@ body {
   box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
   padding:20px;
   box-sizing:border-box;
-  vertical-align: text-top;
-}
-.doc {
-  /* border: 2px solid #ffa100; */
   position:relative;
+  vertical-align: text-top;
 }
 .motion-tag {
   position: absolute;
@@ -192,7 +189,7 @@ body {
   bottom:20px;
   left: 10px;
 }
-.votes-for-parties {
+.votes-for-parties , .votes-against-parties , .votes {
     position: relative;
     height:40px;
 }
@@ -218,4 +215,53 @@ body {
 p {
   padding: 0;
   margin: 0
+}
+.party-square {
+  position: absolute;
+  background-size: 50px auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+  border: 3px solid white;
+  box-sizing: border-box;
+}
+#doc {
+  z-index: 10;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+  background-color: var(--white);
+  color:var(--accent);
+  border-radius: 20px;
+  display: none;
+  position:absolute;
+  border-radius: 20px;
+  display: none;
+  top: 10%;
+  position: fixed;
+  left: calc(50% - 350px);
+  width: 700px;
+  padding: 30px;
+  max-height: 80%;
+  overflow: auto;
+}
+#doc .close {
+  position: absolute;
+  right: 10px;
+  top:10px;
+  cursor: pointer;
+}
+#doc .votes {
+  margin: 50px 0;
+}
+#doc .text-piece{
+  margin: 10px 0;
+  background-color: #ffdedebf;
+  border-radius: 20px;
+  padding:10px;
+  max-width: 500px;
+}
+#doc .status-tag {
+  font-size:15px;
+  padding:5px;
+  position: initial;
+  display: inline-block;
 }
