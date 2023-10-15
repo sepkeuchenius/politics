@@ -40,7 +40,6 @@ class Motion extends Doc {
         var motion = $("<div>")
         motion.addClass("motion-tag")
         motion.text("MOTIE")
-        shape.append(motion)
 
         var status = $("<div>")
         status.addClass("status-tag")
@@ -75,6 +74,7 @@ class Motion extends Doc {
             }
         }
         shape.append(motion_parties)
+        shape.append(motion)
         var votes_for_parties = $("<div>")
         votes_for_parties.addClass("votes-for-parties")
         var left = 0;
@@ -115,12 +115,12 @@ class Motion extends Doc {
 function calcPartyImagePosition(left, top){
     const width = 40;
     const height = 40;
-    const xOverlap = 10;
-    const yOverlap = 10
+    const xOverlap = 5;
+    const yOverlap = 5
     const xMove = width - xOverlap;
     const yMove = height - yOverlap;
-    const outerRight = 400;
-    if(left + xMove > outerRight){
+    const outerRight = 200;
+    if(left + (xMove * 2) > outerRight){
         return [0, top + yMove];
     }
     else {
@@ -177,7 +177,7 @@ function openDoc() {
     $("#doc .members").append(docElement.find(".motion-parties").clone().show())
     if (doc.docType == "motion") {
         $("#doc .title").text(`Motie ${doc.data.Titel}`);
-        docElement.find(".status-tag").clone().insertBefore("#doc .members")
+        docElement.find(".status-tag").clone().insertAfter("#doc .members")
 
         $("#doc .votes-for").html("Voor <br>")
         $("#doc .votes-for").append(docElement.find(".votes-for-parties").clone().show())
