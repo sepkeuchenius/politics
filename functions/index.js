@@ -35,7 +35,27 @@ function _get_hit_parties(hits){
       parties = parties.concat(hit.parties)
     } 
   }
-  return _get_unique_elements(parties)
+  //we now have a list of parties of all the hits, so we can calc their occurances
+  var party_occurances = {}
+  for(party of parties){
+    if(!party_occurances[party]){
+      party_occurances[party] = 1
+    }
+    else{
+      party_occurances[party] += 1
+    }
+  }
+  //make into tuples
+  var party_occurance_tuples = []
+  for(party in party_occurances){
+    party_occurance_tuples.push([party, party_occurances[party]])
+  }
+
+  //sort by occurance
+  party_occurance_tuples.sort((a,b)=>{return b[1] - a[1]});
+
+  //return the sorted partoes
+  return party_occurance_tuples.map((party_and_occurance) => {return party_and_occurance[0]})
 }
 
 function _get_hit_members(hits){
