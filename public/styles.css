@@ -169,9 +169,9 @@ body {
   left: 10px;
   background:var(--accent);
   color:var(--white);
-  border-radius: 3px;;
+  border-radius: 20px;
   font-size:12px;
-  padding: 0 2px;
+  padding: 2px 5px;
 }
 .program-tag {
   position: absolute;
@@ -179,9 +179,9 @@ body {
   left: 10px;
   background: var(--accent);
   color:var(--white);
-  border-radius: 3px;;
+  border-radius: 20px;
   font-size:12px;
-  padding: 0 2px;
+  padding: 2px 5px;
 }
 
 .motion-parties {
@@ -208,8 +208,8 @@ body {
   right: 10px;
   background: var(--third);
   color:var(--accent);
-  border-radius: 3px;;
-  padding: 0 2px;
+  border-radius: 20px;
+  padding: 2px 5px;
   font-size:12px;
 }
 p {
@@ -253,6 +253,9 @@ p {
 #doc .votes {
   margin: 50px 0;
 }
+#doc .members {
+  margin-top:0;
+}
 #doc .text-piece{
   margin: 10px 0;
   background-color: #ffdedebf;
@@ -262,7 +265,10 @@ p {
 }
 #doc .status-tag {
   font-size:15px;
-  padding:5px;
+  padding:5px 7px;
   position: initial;
   display: inline-block;
+}
+#doc .motion-parties {
+  left:0;
 }
