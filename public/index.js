@@ -34,9 +34,51 @@ function loadResults(res) {
   var hits = res.data[0]
   var pics_per_party = res.data[1]
   var party_occurance_tuples = res.data[3]
+  var motion_party_occurance_tuples = res.data[4]
+  var program_party_occurance_tuples = res.data[5]
   PICS_PER_PARTY = pics_per_party
-  createPartiesSquare(party_occurance_tuples, totalHits)
+  createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
   loadDocs(hits)
+}
+
+function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples){
+  const ctx = document.getElementById('chart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: motion_party_occurance_tuples.map((party)=>{return party[0]}),
+      datasets: [{
+        label: 'Moties',
+        data: motion_party_occurance_tuples.map((party)=>{return party[1]}),
+        borderWidth: 1
+      },
+      {
+        label: 'Partijprogramma',
+        data: program_party_occurance_tuples.map((party)=>{return party[1]}),
+        borderWidth: 1
+      }],
+
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true
+        },
+        x: {
+          stacked: true,
+        },
+      },
+      onClick: (e, elements) => {
+        const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+        if(elements[0]){
+          const i = elements[0].index;
+          const party = motion_party_occurance_tuples[i];
+          loadPartyDocs(party[0])
+        }
+      }
+    }
+  });
 }
 
 

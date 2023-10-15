@@ -280,3 +280,10 @@ p {
 .votes-for {
   margin-right:5px;
 }
+#chart {
+  width:700px;
+}
+.chart-container {
+  width:800px;
+  margin:0 auto;
+}

@@ -172,15 +172,30 @@ async function _generate_parties_overview(hits){
     }
   }
   const party_occurance_tuples  = _get_hit_parties(hits)  
+  const motion_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return hit.members})))
+  const program_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return !hit.members})))
   for(party_index in party_occurance_tuples){
     var party_pic = null
     party = party_occurance_tuples[party_index][0]
     party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
     total_hits += party_hits.length
   }
-  return [hits, pics_per_party, total_hits, party_occurance_tuples]
+  return [hits, pics_per_party, total_hits, party_occurance_tuples, motion_party_occurance_tuples, program_party_occurance_tuples]
 }
 
+function _merge_tuple_lists(tuple_list, other_tuple_list){
+  const other_entries = other_tuple_list.map((e)=> {return e[0]})
+  var new_tuple_list = []
+  for(t of tuple_list){
+    if(!other_entries.includes(t[0])){
+      new_tuple_list.push([t[0], 0])
+    }
+    else {
+      new_tuple_list.push(other_tuple_list[other_entries.indexOf(t[0])])
+    }
+  }
+  return new_tuple_list
+}
 
 function _clean_text(str){
   return str.replace(/[^\w\s\.\:\,\;]/gi, '')

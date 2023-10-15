@@ -25,8 +25,11 @@ class Doc {
         this.shape = shape
         return shape;
     }
-    open() {
-
+    show(){
+        $(`#${this.id}`).show()
+    }
+    hide(){
+        $(`#${this.id}`).hide()
     }
 }
 
@@ -62,7 +65,6 @@ class Motion extends Doc {
         var top = 0;
         for (var party of doc.parties) {
             if (PICS_PER_PARTY[party]) {
-                console.log(left, top)
                 var party_img = $("<img>")
                 party_img.addClass("motion-party")
                 party_img.css("background", `url('${PICS_PER_PARTY[party]}') center/80% no-repeat var(--white)`)
@@ -198,4 +200,14 @@ function getHeight($el){
     const top = $el.offset().top
     const bottom = $el.children().last().offset().top + $el.children().last().height()
     return bottom - top;
+}
+
+async function loadPartyDocs(party){
+    console.log(party)
+    for(doc of DOCS){
+        await doc.show()
+        if(!((doc.data.party && party == doc.data.party) || (doc.data.parties && doc.data.parties.includes(party)))){
+            await doc.hide()
+        }
+    }
 }
