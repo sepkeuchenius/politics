@@ -55,7 +55,7 @@ function _get_hit_parties(hits){
   party_occurance_tuples.sort((a,b)=>{return b[1] - a[1]});
 
   //return the sorted partoes
-  return party_occurance_tuples.map((party_and_occurance) => {return party_and_occurance[0]})
+  return party_occurance_tuples;
 }
 
 function _get_hit_members(hits){
@@ -139,28 +139,46 @@ function _generate_member_node(member_name){
     }
 }
 
+function _get_all_parties(docs){
+  var parties = []
+  for(doc of docs){
+    if(doc.party){
+      parties.push(doc.party)
+    }
+    if(doc.parties){
+      parties = parties.concat(doc.parties)
+    } 
+    if(doc.votes_for){
+      parties = parties.concat(doc.votes_for.map((vote)=>{return vote.ActorFractie}))
+    } 
+    if(doc.votes_against){
+      parties = parties.concat(doc.votes_against.map((vote)=>{return vote.ActorFractie}))
+    }
+  }
+  return _get_unique_elements(parties)
+}
 
 async function _generate_parties_overview(hits){
-  var hits_per_party = {}
   var pics_per_party = {}
   var total_hits = 0
   pics = await bucket.getFiles()
-  const parties  = _get_hit_parties(hits)
-  for(party_index in parties){
-    var party_pic = null
-    party = parties[party_index]
+  const allParties = _get_all_parties(hits)
+  for(var party of allParties){
     for(pic of pics[0]){
       if(pic.name.toLowerCase().includes(party.toLowerCase())){
         party_pic = pic.publicUrl()
+        pics_per_party[party] = party_pic
       }
     }
-    //find all hits for this party
+  }
+  const party_occurance_tuples  = _get_hit_parties(hits)  
+  for(party_index in party_occurance_tuples){
+    var party_pic = null
+    party = party_occurance_tuples[party_index][0]
     party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
-    hits_per_party[party] = party_hits
-    pics_per_party[party] = party_pic
     total_hits += party_hits.length
   }
-  return [hits_per_party, pics_per_party, total_hits]
+  return [hits, pics_per_party, total_hits, party_occurance_tuples]
 }
 
 
