@@ -40,22 +40,30 @@ function loadResults(res) {
   createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
   loadDocs(hits)
 }
-
+var chart;
 function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples){
+  $("#chart").empty()
+  if(chart){
+    chart.destroy()
+  }
   const ctx = document.getElementById('chart');
-  new Chart(ctx, {
+  chart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: motion_party_occurance_tuples.map((party)=>{return party[0]}),
       datasets: [{
         label: 'Moties',
         data: motion_party_occurance_tuples.map((party)=>{return party[1]}),
-        borderWidth: 1
+        borderWidth: 1,
+        backgroundColor: '#C4E3CB',
+        borderRadius: 20
       },
       {
         label: 'Partijprogramma',
         data: program_party_occurance_tuples.map((party)=>{return party[1]}),
-        borderWidth: 1
+        borderWidth: 1,
+        backgroundColor: '#8AAE92',
+        borderRadius: 20
       }],
 
     },
@@ -124,8 +132,10 @@ function createPartiesSquare(party_occurance_tuples, totalHits) {
 }
 
 function loadDocs(docs) {
-  // $("#docs").empty()
+  $("#docs").empty()
+  DOCS = []
   for (doc of docs) {
+    if(!(doc.status || doc.party)){continue}
     if (doc.party) {
       program = new Program(doc);
       program.draw();
