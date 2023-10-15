@@ -222,8 +222,9 @@ p {
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 10px;
-  border: 3px solid white;
+  border: 3px solid var(--white);
   box-sizing: border-box;
+  background-color: var(--second);
 }
 #doc {
   z-index: 10;

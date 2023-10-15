@@ -1,11 +1,12 @@
 var search;
-
+SQUARE_WIDTH = 700;
+SQUARE_HEIGHT = 100;
+var PICS_PER_PARTY = {}
 document.addEventListener('DOMContentLoaded', function () {
   search = firebase.functions().httpsCallable('search');
   $("#query").focus()
 });
 
-var PICS_PER_PARTY = {}
 
 function getHitNode(hit, index) {
   var [highlightText, highlightSentence, paragraph] = _find_highlight(hit)
@@ -31,31 +32,8 @@ function performQuery() {
     var hits_per_party = res.data[0]
     var pics_per_party = res.data[1]
     PICS_PER_PARTY = pics_per_party
-    SQUARE_WIDTH = 700;
-    SQUARE_HEIGHT = 100;
-    const COLORS = ["#50C878",
-      "#5F8575",
-      "#4F7942",
-      "#228B22",
-      "#7CFC00",
-      "#008000",
-      "#355E3B",
-      "#00A36C",
-      "#2AAA8A",
-      "#4CBB17",
-      "#90EE90",
-      "#32CD32",
-      "#478778",
-      "#0BDA51",
-      "#98FB98",
-      "#8A9A5B",
-      "#0FFF50",
-      "#ECFFDC",
-      "#808000",
-      "#C1E1C1",
-      "#C9CC3F",
-      "#B4C424",
-      "#93C572"]
+    
+    
     var square = $("<div>");
     square.css("width", SQUARE_WIDTH).css("height", SQUARE_HEIGHT).css("position", "relative");
     var x = 0, y = 0;
@@ -81,8 +59,8 @@ function performQuery() {
       partySquare.css("height", partyEndY - partyBeginY)
       partySquare.css("width", partyEndX - partyBeginX)
       partySquare.css("background-image", `url('${pics_per_party[party]}')`)
-      partySquare.css("background-color", COLORS[0])
-      partySquare.css("background-size", `${Math.min(partySquare.width(), "50", partySquare.innerHeight())}px`)
+      partySquare.css("background-color", `rgb(196,227, ${200 + (Number(index) * 5)})`)
+      partySquare.css("background-size", `${Math.min(partySquare.width() - 5, "50", partySquare.innerHeight() - 5)}px`)
       partySquare.css("left", partyBeginX)
       partySquare.css("top", partyBeginY)
       partySquare.addClass("party-square")
@@ -216,10 +194,12 @@ function openDoc(doc){
   $('#doc').show();
   const motionText = doc.attr("hidden-text")
   const motionTexts = motionText.split(";")
-  for(var text of motionTexts){
+  for(var index in motionTexts){
+    var text = motionTexts[index]
     var textPiece = $("<p>");
     textPiece.text(text);
     textPiece.addClass("text-piece");
+    textPiece.css("background-color", `rgb(196,227, ${200 + (Number(index) * 10)})`)
     $("#doc .content").append(textPiece)
   }
   if(doc.attr("class").includes("motion")){
