@@ -60,27 +60,34 @@ class Motion extends Doc {
         var motion_parties = $("<div>")
         motion_parties.addClass("motion-parties")
         var left = 0;
+        var top = 0;
         for (var party of doc.parties) {
             if (PICS_PER_PARTY[party]) {
+                console.log(left, top)
                 var party_img = $("<img>")
                 party_img.addClass("motion-party")
                 party_img.css("background", `url('${PICS_PER_PARTY[party]}') center/80% no-repeat var(--white)`)
                 party_img.css("left", `${left}px`)
-                left += 30
+                party_img.css("top", `${top}px`)
                 motion_parties.append(party_img)
+                var newPosition = calcPartyImagePosition(left, top)
+                left = newPosition[0]; top = newPosition[1];
             }
         }
         shape.append(motion_parties)
         var votes_for_parties = $("<div>")
         votes_for_parties.addClass("votes-for-parties")
         var left = 0;
+        var top = 0;
         for (var vote of doc.votes_for) {
             var party_img = $("<img>")
             party_img.addClass("motion-party")
             party_img.css("background", `url('${PICS_PER_PARTY[vote.ActorFractie]}') center/80% no-repeat var(--white)`)
             party_img.css("left", `${left}px`)
-            left += 30
+            party_img.css("top", `${top}px`)
             votes_for_parties.append(party_img)
+            var newPosition = calcPartyImagePosition(left, top)
+            left = newPosition[0]; top = newPosition[1];
         }
         votes_for_parties.hide()
         shape.append(votes_for_parties)
@@ -88,18 +95,37 @@ class Motion extends Doc {
         var votes_against_parties = $("<div>")
         votes_against_parties.addClass("votes-against-parties")
         var left = 0;
+        var top = 0;
         for (var vote of doc.votes_against) {
             var party_img = $("<img>")
             party_img.addClass("motion-party")
             party_img.css("background", `url('${PICS_PER_PARTY[vote.ActorFractie]}') center/80% no-repeat var(--white)`)
             party_img.css("left", `${left}px`)
-            left += 30
+            party_img.css("top", `${top}px`)
             votes_against_parties.append(party_img)
+            var newPosition = calcPartyImagePosition(left, top)
+            left = newPosition[0]; top = newPosition[1];
         }
         votes_against_parties.hide()
         shape.append(votes_against_parties)
     }
 
+}
+
+function calcPartyImagePosition(left, top){
+    const width = 40;
+    const height = 40;
+    const xOverlap = 10;
+    const yOverlap = 10
+    const xMove = width - xOverlap;
+    const yMove = height - yOverlap;
+    const outerRight = 400;
+    if(left + xMove > outerRight){
+        return [0, top + yMove];
+    }
+    else {
+        return [left + xMove, top];
+    }
 }
 
 class Program extends Doc {

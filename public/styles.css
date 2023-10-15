@@ -240,9 +240,10 @@ p {
   position: fixed;
   left: calc(50% - 350px);
   width: 700px;
-  padding: 30px;
+  padding: 30px 100px;
   max-height: 80%;
   overflow: auto;
+  box-sizing: border-box;
 }
 #doc .close {
   position: absolute;
