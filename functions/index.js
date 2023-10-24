@@ -13,6 +13,21 @@ exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(
   });
 });
 
+const PARTY_MAPPER = {
+  "Omtzigt": "NSC",
+  "PvdA": "GL-PvdA",
+  "GroenLinks": "GL-PvdA"
+}
+
+function mapParty(party){
+  if(Object.keys(PARTY_MAPPER).includes(party)){
+    return PARTY_MAPPER[party]
+  }
+  else{
+    return party.toLowerCase()
+  }
+}
+
 
 function _get_unique_elements(list){
   //filter null items and lowercase everything
@@ -29,13 +44,36 @@ function _get_hit_parties(hits){
   var parties = []
   for(hit of hits){
     if(hit.party) {
-      parties.push(hit.party)
+      parties.push(mapParty(hit.party))
     }
     else if(hit.parties){
-      parties = parties.concat(hit.parties)
+      parties = parties.concat(hit.parties.map((party)=>{return mapParty(party)}))
     } 
   }
-  return _get_unique_elements(parties)
+  //we now have a list of parties of all the hits, so we can calc their occurances
+  var party_occurances = {}
+  for(party of parties){
+    if(!party_occurances[party]){
+      party_occurances[party] = 1
+    }
+    else{
+      party_occurances[party] += 1
+    }
+  }
+  //make into tuples
+  var party_occurance_tuples = []
+  for(party in party_occurances){
+    party_occurance_tuples.push([party, party_occurances[party]])
+  }
+
+  //sort by occurance
+  party_occurance_tuples.sort((a,b)=>{return b[1] - a[1]});
+
+  //map parties
+  party_occurance_tuples = party_occurance_tuples.map((tuple)=>{return [mapParty(tuple[0]), tuple[1]]})
+
+  //return the sorted parties
+  return party_occurance_tuples;
 }
 
 function _get_hit_members(hits){
@@ -80,34 +118,6 @@ function _generate_node(hit){
     }
 }
 
-function generate_graph_from_hits(hits){
-  var nodes = []
-  var edges = []
-  var hits = hits.filter(_find_highlight)
-  var roots = _get_hit_parties(hits).concat(_get_hit_members(hits))
-  var root_nodes = roots.map(_generate_root_node)
-  root_nodes.forEach(root => {
-    root.heightConstraint.minimum = Math.max(root.heightConstraint.minimum, _get_root_size(root, hits))
-    root.gravity = _get_root_size(root, hits) / 250
-    root.widthConstraint.minimum = Math.max(root.heightConstraint.minimum, _get_root_size(root, hits))
-  })
-  nodes = nodes.concat(root_nodes)
-  for(hit of hits){
-    hit.text = _clean_text(hit.text)
-    node = _generate_node(hit)
-    nodes.push(node)
-    if (hit.hasOwnProperty("party")){
-      edge = {"from": hit.objectID, "to": roots.indexOf(hit.party)}
-    }
-    else {
-      edge = {"from": hit.objectID, "to": roots.indexOf(hit.member)}
-
-    }
-    edges.push(edge)
-  }
-  return [nodes, edges]
-}
-
 function _find_highlight(hit){
   var highlightText  = hit._highlightResult.text
   if(highlightText){
@@ -147,49 +157,66 @@ function _generate_member_node(member_name){
     }
 }
 
+function _get_all_parties(docs){
+  var parties = []
+  for(doc of docs){
+    if(doc.party){
+      parties.push(doc.party)
+    }
+    if(doc.parties){
+      parties = parties.concat(doc.parties)
+    } 
+    if(doc.votes_for){
+      parties = parties.concat(doc.votes_for.map((vote)=>{return vote.ActorFractie}))
+    } 
+    if(doc.votes_against){
+      parties = parties.concat(doc.votes_against.map((vote)=>{return vote.ActorFractie}))
+    }
+  }
+  //map parties
+  parties = parties.map((party)=>{return mapParty(party)})
+
+  return _get_unique_elements(parties)
+}
 
 async function _generate_parties_overview(hits){
-  var nodes = []
-  var edges = []
+  var pics_per_party = {}
+  var total_hits = 0
   pics = await bucket.getFiles()
-  const parties  = _get_hit_parties(hits)
-  console.log(parties)
-  for(party_index in parties){
-    var party_pic = null
-    party = parties[party_index]
+  const allParties = _get_all_parties(hits)
+  for(var party of allParties){
     for(pic of pics[0]){
       if(pic.name.toLowerCase().includes(party.toLowerCase())){
         party_pic = pic.publicUrl()
-      }
-    }
-    //find all hits for this party
-    party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
-    root_node = _generate_root_node(party, pic_url = party_pic)
-    nodes.push(root_node)
-    for(hit of party_hits){
-      hit.text = _clean_text(hit.text)
-      node = _generate_node(hit)
-      if(!nodes.map((node) => {return node.id }).includes(node.id)){
-        nodes.push(node)
-      }
-      edge = {"from": hit.objectID, "to": party}  
-      edges.push(edge)
-      if(hit.members){
-        for(member of hit.members){
-          member_node = _generate_member_node(member)
-          if(!nodes.map((node) => {return node.id }).includes(member_node.id)){
-            nodes.push(member_node)
-          }
-          if(!edges.map((edge) => {return edge.from + edge.to}).includes(member+hit.objectID)){
-            edges.push({"from": member, "to": hit.objectID})
-          }
-        }
+        pics_per_party[party] = party_pic
       }
     }
   }
-  return [nodes,edges]
+  const party_occurance_tuples  = _get_hit_parties(hits)  
+  const motion_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return hit.members})))
+  const program_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return !hit.members})))
+  for(party_index in party_occurance_tuples){
+    var party_pic = null
+    party = party_occurance_tuples[party_index][0]
+    party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
+    total_hits += party_hits.length
+  }
+  return [hits, pics_per_party, total_hits, party_occurance_tuples, motion_party_occurance_tuples, program_party_occurance_tuples]
 }
 
+function _merge_tuple_lists(tuple_list, other_tuple_list){
+  const other_entries = other_tuple_list.map((e)=> {return e[0]})
+  var new_tuple_list = []
+  for(t of tuple_list){
+    if(!other_entries.includes(t[0])){
+      new_tuple_list.push([t[0], 0])
+    }
+    else {
+      new_tuple_list.push(other_tuple_list[other_entries.indexOf(t[0])])
+    }
+  }
+  return new_tuple_list
+}
 
 function _clean_text(str){
   return str.replace(/[^\w\s\.\:\,\;]/gi, '')
