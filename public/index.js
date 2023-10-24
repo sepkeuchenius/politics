@@ -68,6 +68,7 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
 
     },
     options: {
+      scaleShowValues: true,
       scales: {
         y: {
           beginAtZero: true,
@@ -75,7 +76,10 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
         },
         x: {
           stacked: true,
-        },
+          ticks: {
+            autoSkip: false
+          }
+        }
       },
       onClick: (e, elements) => {
         const canvasPosition = Chart.helpers.getRelativePosition(e, chart);

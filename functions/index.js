@@ -14,25 +14,32 @@ exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(
 });
 
 const PARTY_MAPPER = {
-  "Omtzigt": "NSC",
-  "PvdA": "GL-PvdA",
-  "GroenLinks": "GL-PvdA"
+  "OMTZIGT": "NSC",
+  "PVDA": "GL-PvdA",
+  "GROENLINKS": "GL-PvdA",
+  "GL": "GL-PvdA",
+  "BBB": "BBB",
+  "VVD": "VVD",
+  "PVDD": "PvdD",
+  "D66": "D66",
 }
 
 function mapParty(party){
-  if(Object.keys(PARTY_MAPPER).includes(party)){
-    return PARTY_MAPPER[party]
+  if(!party || party.includes(".")){
+    return null
   }
-  else{
-    return party.toLowerCase()
+  if(Object.keys(PARTY_MAPPER).includes(party.toUpperCase())){
+    return PARTY_MAPPER[party.toUpperCase()]
+  }
+  else {
+    return party.toUpperCase()
   }
 }
 
 
 function _get_unique_elements(list){
   //filter null items and lowercase everything
-  const lowercaseItems = list.filter((item) => {return item != null}).map((item) => {return item.toLowerCase()})
-  return list.filter((item, index, items) => {return item && lowercaseItems.indexOf(item.toLowerCase()) == index})
+  return list.filter((item, index, items) => {return item && list.indexOf(item) == index})
 }
 
 
@@ -44,15 +51,17 @@ function _get_hit_parties(hits){
   var parties = []
   for(hit of hits){
     if(hit.party) {
-      parties.push(mapParty(hit.party))
+      if(mapParty(hit.party)){
+        parties.push(hit.party)        
+      }
     }
     else if(hit.parties){
-      parties = parties.concat(hit.parties.map((party)=>{return mapParty(party)}))
+      parties = parties.concat(hit.parties)
     } 
   }
   //we now have a list of parties of all the hits, so we can calc their occurances
   var party_occurances = {}
-  for(party of parties){
+  for(var party of parties){
     if(!party_occurances[party]){
       party_occurances[party] = 1
     }
@@ -68,9 +77,6 @@ function _get_hit_parties(hits){
 
   //sort by occurance
   party_occurance_tuples.sort((a,b)=>{return b[1] - a[1]});
-
-  //map parties
-  party_occurance_tuples = party_occurance_tuples.map((tuple)=>{return [mapParty(tuple[0]), tuple[1]]})
 
   //return the sorted parties
   return party_occurance_tuples;
@@ -173,13 +179,19 @@ function _get_all_parties(docs){
       parties = parties.concat(doc.votes_against.map((vote)=>{return vote.ActorFractie}))
     }
   }
-  //map parties
-  parties = parties.map((party)=>{return mapParty(party)})
 
   return _get_unique_elements(parties)
 }
 
 async function _generate_parties_overview(hits){
+  for(var hit of hits){
+    if(hit.party){
+      hit.party = mapParty(hit.party)
+    }
+    else if(hit.parties){
+      hit.parties = hit.parties.map((party)=>{return mapParty(party)})
+    }
+  }
   var pics_per_party = {}
   var total_hits = 0
   pics = await bucket.getFiles()

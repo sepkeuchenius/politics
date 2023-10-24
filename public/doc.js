@@ -20,11 +20,11 @@ class Doc {
             //find the sentence
             for(var index in sentences){
                 if (sentences[index].indexOf("<em>") != -1){
-                    return realSentences[index]
+                    return realSentences[index].substring(0,100) + "..."
                 }
             }
         }
-        return this.data.text
+        return this.data.text.substring(0,100) + "..."
     }
 
     draw() {
@@ -88,6 +88,9 @@ class Motion extends Doc {
                 motion_parties.append(party_img)
                 var newPosition = calcPartyImagePosition(left, top)
                 left = newPosition[0]; top = newPosition[1];
+            }
+            else {
+                console.log(party)
             }
         }
         shape.append(motion_parties)
