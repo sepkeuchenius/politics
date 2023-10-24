@@ -13,6 +13,21 @@ exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(
   });
 });
 
+const PARTY_MAPPER = {
+  "Omtzigt": "NSC",
+  "PvdA": "GL-PvdA",
+  "GroenLinks": "GL-PvdA"
+}
+
+function mapParty(party){
+  if(Object.keys(PARTY_MAPPER).includes(party)){
+    return PARTY_MAPPER[party]
+  }
+  else{
+    return party.toLowerCase()
+  }
+}
+
 
 function _get_unique_elements(list){
   //filter null items and lowercase everything
@@ -29,10 +44,10 @@ function _get_hit_parties(hits){
   var parties = []
   for(hit of hits){
     if(hit.party) {
-      parties.push(hit.party)
+      parties.push(mapParty(hit.party))
     }
     else if(hit.parties){
-      parties = parties.concat(hit.parties)
+      parties = parties.concat(hit.parties.map((party)=>{return mapParty(party)}))
     } 
   }
   //we now have a list of parties of all the hits, so we can calc their occurances
@@ -54,7 +69,10 @@ function _get_hit_parties(hits){
   //sort by occurance
   party_occurance_tuples.sort((a,b)=>{return b[1] - a[1]});
 
-  //return the sorted partoes
+  //map parties
+  party_occurance_tuples = party_occurance_tuples.map((tuple)=>{return [mapParty(tuple[0]), tuple[1]]})
+
+  //return the sorted parties
   return party_occurance_tuples;
 }
 
@@ -155,6 +173,9 @@ function _get_all_parties(docs){
       parties = parties.concat(doc.votes_against.map((vote)=>{return vote.ActorFractie}))
     }
   }
+  //map parties
+  parties = parties.map((party)=>{return mapParty(party)})
+
   return _get_unique_elements(parties)
 }
 

@@ -8,8 +8,23 @@ class Doc {
         else {
             this.docType = "motion";
         }
-        this.text = doc.text.substring(0, 100) + "..."
-        this.fullText = doc.text
+        this.text = this.findHiglight()
+        this.fullText = this.data.text
+    }
+
+    findHiglight(){
+        if(this.data._highlightResult && this.data._highlightResult.text.matchLevel != "none"){
+            const highlighted = this.data._highlightResult.text.value
+            const sentences = highlighted.split(/[,;.]/)
+            const realSentences = this.data.text.split(/[,;.]/)
+            //find the sentence
+            for(var index in sentences){
+                if (sentences[index].indexOf("<em>") != -1){
+                    return realSentences[index]
+                }
+            }
+        }
+        return this.data.text
     }
 
     draw() {
