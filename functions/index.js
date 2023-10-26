@@ -15,13 +15,17 @@ exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(
 
 const PARTY_MAPPER = {
   "OMTZIGT": "NSC",
-  "PVDA": "GL-PvdA",
-  "GROENLINKS": "GL-PvdA",
-  "GL": "GL-PvdA",
+  // "PVDA": "GL-PvdA",
+  // "GROENLINKS": "GL-PvdA",
+  // "GL": "GL-PvdA",
   "BBB": "BBB",
   "VVD": "VVD",
   "PVDD": "PvdD",
   "D66": "D66",
+  "VAN HAGA": "BVNL",
+  "GROEP VAN HAGA": "BVNL",
+  "KROL": "BVNL",
+  "VAN KOOTEN-ARISSEN": "SPLINTER"
 }
 
 function mapParty(party){
@@ -189,7 +193,15 @@ async function _generate_parties_overview(hits){
       hit.party = mapParty(hit.party)
     }
     else if(hit.parties){
-      hit.parties = hit.parties.map((party)=>{return mapParty(party)})
+      hit.parties = _get_unique_elements(hit.parties.map((party)=>{return mapParty(party)}))
+    }
+    if(hit.votes_for){
+      hit.votes_for = _get_unique_elements(hit.votes_for.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
+      hit.total_votes_for = hit.votes_for.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
+    }
+    if(hit.votes_against){
+      hit.votes_against = _get_unique_elements(hit.votes_against.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
+      hit.total_votes_against = hit.votes_against.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
     }
   }
   var pics_per_party = {}
@@ -198,7 +210,7 @@ async function _generate_parties_overview(hits){
   const allParties = _get_all_parties(hits)
   for(var party of allParties){
     for(pic of pics[0]){
-      if(pic.name.toLowerCase().includes(party.toLowerCase())){
+      if(pic.name.toLowerCase().split(".")[0]==party.toLowerCase()){
         party_pic = pic.publicUrl()
         pics_per_party[party] = party_pic
       }
