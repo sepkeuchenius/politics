@@ -25,7 +25,8 @@ const PARTY_MAPPER = {
   "VAN HAGA": "BVNL",
   "GROEP VAN HAGA": "BVNL",
   "KROL": "BVNL",
-  "VAN KOOTEN-ARISSEN": "SPLINTER"
+  "VAN KOOTEN-ARISSEN": "SPLINTER",
+  "GÜNDOGAN": "GUNDOGAN"
 }
 
 function mapParty(party){
@@ -43,7 +44,7 @@ function mapParty(party){
 
 function _get_unique_elements(list){
   //filter null items and lowercase everything
-  return list.filter((item, index, items) => {return item && list.indexOf(item) == index})
+  return list.filter((item, index, items) => {return item && items.indexOf(item) == index})
 }
 
 
@@ -195,11 +196,11 @@ async function _generate_parties_overview(hits){
     else if(hit.parties){
       hit.parties = _get_unique_elements(hit.parties.map((party)=>{return mapParty(party)}))
     }
-    if(hit.votes_for){
+    if(hit.votes_for && hit.votes_for.length > 0){
       hit.votes_for = _get_unique_elements(hit.votes_for.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
       hit.total_votes_for = hit.votes_for.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
     }
-    if(hit.votes_against){
+    if(hit.votes_against && hit.votes_against.length > 0){
       hit.votes_against = _get_unique_elements(hit.votes_against.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
       hit.total_votes_against = hit.votes_against.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
     }
