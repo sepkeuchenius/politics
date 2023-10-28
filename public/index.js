@@ -136,6 +136,9 @@ function createPartiesSquare(party_occurance_tuples, totalHits) {
 }
 
 function loadDocs(docs) {
+  $("#results").text(
+    `${docs.length} resultaten in moties en partijprogramma's.`
+  )
   $("#docs").empty()
   DOCS = []
   for (doc of docs) {

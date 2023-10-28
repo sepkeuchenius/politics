@@ -39,7 +39,7 @@
 <body>
   <div id="search-box" style="height: 50px;">
     <input type="text" id="query" placeholder="Wat vind je belangrijk?" />
-    <span class="material-symbols-outlined search">search
+    <span class="material-symbols-outlined search" onclick="performQuery()" style="cursor: pointer;">search
       </span>
     </div>
   <div id="results">
@@ -54,6 +54,9 @@
       cancel
       </span>
     <h1 class="title"></h1>
+    <div id="tags">
+      <span id='date' class="tag"></span>
+    </div>
     <div class="members votes">
     </div>
     <p class="content"></p>
@@ -62,7 +65,9 @@
     <div class="votes-against votes"></div>
     <p class="metadata"></p>
   </div>
-
+  <footer>
+    Made by Sep Keuchenius and Andrzej Gajda
+  </footer>
   
 
   <script src="doc.js"></script>
