@@ -323,3 +323,10 @@ em {
 #tags {
   display: block;
 }
+.venn {
+  display: inline-block;
+}
+#venn-container {
+  margin:30px auto;
+  width: 50%;
+}

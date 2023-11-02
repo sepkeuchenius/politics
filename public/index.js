@@ -37,27 +37,29 @@ function loadResults(res) {
   var motion_party_occurance_tuples = res.data[4]
   var program_party_occurance_tuples = res.data[5]
   var partyOverlaps = res.data[6]
-  createVennDiagram(partyOverlaps)
   PICS_PER_PARTY = pics_per_party
   createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
   loadDocs(hits)
+  createVennDiagram(partyOverlaps)
 }
 var chart;
+var vennChart;
 function createVennDiagram(data){
+  $(".venn").empty()
   // creating a venn diagram with the data
-  let chart = anychart.venn([data[0], data[1], data[2]]);
+  vennChart = anychart.venn([data[0], data[1], data[2]]);
   // setting the labels
-  chart.labels().format("{%Name}");
   // setting the chart title
-  chart.title("Minst eens");
+  vennChart.title("Minst eens");
   // setting the container id
-  chart.container("least-agreed-venn");
+  vennChart.container("least-agreed-venn");
   // drawing the diagram
-  chart.draw();
+  vennChart.width(300)
+  vennChart.draw();
+
 
   let otherChart = anychart.venn([data[3], data[4], data[5]]);
   // setting the labels
-  otherChart.labels().format("{%Name}");
   // setting the chart title
   otherChart.title("Meest eens");
   // setting the container id

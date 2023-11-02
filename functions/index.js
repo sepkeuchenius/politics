@@ -189,22 +189,27 @@ function _get_all_parties(docs){
 }
 
 async function _generate_parties_overview(hits){
+  var motionParties = []
   for(var hit of hits){
     if(hit.party){
       hit.party = mapParty(hit.party)
     }
     else if(hit.parties){
       hit.parties = _get_unique_elements(hit.parties.map((party)=>{return mapParty(party)}))
+      motionParties = motionParties.concat(hit.parties)
     }
     if(hit.votes_for && hit.votes_for.length > 0){
       hit.votes_for = _get_unique_elements(hit.votes_for.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
       hit.total_votes_for = hit.votes_for.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
+      motionParties = motionParties.concat(hit.votes_for.map((vote)=>{return vote.ActorFractie}))
     }
     if(hit.votes_against && hit.votes_against.length > 0){
       hit.votes_against = _get_unique_elements(hit.votes_against.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
       hit.total_votes_against = hit.votes_against.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
+      motionParties = motionParties.concat(hit.votes_against.map((vote)=>{return vote.votes_against}))
     }
   }
+  motionParties = _get_unique_elements(motionParties)
   var pics_per_party = {}
   var total_hits = 0
   pics = await bucket.getFiles()
@@ -218,7 +223,7 @@ async function _generate_parties_overview(hits){
     }
   }
   const motions = hits.filter((hit)=>{return hit.members})
-  const partyOverlaps = _get_overlapping_parties(motions, _get_hit_parties(motions).map((tuple)=>{return tuple[0]}))
+  const partyOverlaps = _get_overlapping_parties(motions, motionParties)
   const party_occurance_tuples  = _get_hit_parties(hits)  
   const motion_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(motions))
   const program_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return !hit.members})))
@@ -281,6 +286,9 @@ function _get_overlapping_parties(motions, parties){
   // the higher the number, the better the match
   
   // find best and worst matches
+
+  console.log(overlaps)
+
   var bestScore = 0;
   var worstScore = maxDistance;
 
