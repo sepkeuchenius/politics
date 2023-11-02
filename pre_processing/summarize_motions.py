@@ -34,12 +34,29 @@ def summarize_doc(doc: dict) -> str:
 """,
         **parameters
     )
-    print(f"Response from Model: {response.text}")
+    return response.text
 
 
 def get_doc(id: str) -> dict:
-    return utils.COLLECTION.document(id).get().to_dict()
+    return utils.COLLECTION.document(id)
 
 
-summarize_doc(get_doc("03088a77-5134-490a-a356-5a0661be6073"))
+def annotate_doc_with_summary(doc, batch):
+    print(f"Summarizing doc {doc.id}")
+    summary = summarize_doc(doc.to_dict())
+    print(summary)
+    if len(summary) > 2:
+        batch.update(doc.reference, {"summary": summary})
+    else:
+        print("Failed to generate summary")
+
+
+batch = utils.FIRESTORE_DB.batch()
+for index, doc in enumerate(utils.COLLECTION.stream()):
+    if index >= 20:
+        break
+    if "summary" not in doc.to_dict():
+        annotate_doc_with_summary(doc, batch)
+batch.commit()
+
 
