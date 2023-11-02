@@ -19,7 +19,7 @@ CHAMBER = "Kamer"
 LEGISLATION = "Voorstel van wet"
 FOR = "Voor"
 AGAINST = "Tegen"
-
+CHANGED_ON = "GewijzigdOp"
 BASE_URL = "https://gegevensmagazijn.tweedekamer.nl/OData/v4/2.0"
 CHAMBER_FILTER = f"{CHAMBER} eq 2"
 MOTION_FILTER = f"Soort eq '{MOTION}' and {CHAMBER_FILTER}"
@@ -32,7 +32,7 @@ def _get_motions_metadata(
     page_number=0, next_link=None
 ) -> typing.Tuple[typing.List[dict], str]:
     if not next_link:
-        expansions = f"$expand={CASE}($expand={DECISION}($select={DECISION}{TYPE},{VOTE},{DECISION}{TEXT};$expand={VOTE}($select={ACTOR}{NAME},{ACTOR}{PARTY},{PARTY}{SIZE},{TYPE}))),{DOCUMENT}{ACTOR}($select={ACTOR}{NAME},{ACTOR}{PARTY})"
+        expansions = f"$expand={CASE}($expand={DECISION}($select={DECISION}{TYPE},{VOTE},{DECISION}{TEXT},{CHANGED_ON};$orderby={CHANGED_ON};$expand={VOTE}($select={ACTOR}{NAME},{ACTOR}{PARTY},{PARTY}{SIZE},{TYPE}))),{DOCUMENT}{ACTOR}($select={ACTOR}{NAME},{ACTOR}{PARTY})"
         selections = "$select=Id,Titel,Onderwerp,Datum"
         link = f"{BASE_URL}/{DOCUMENT}?$filter={quote(MOTION_FILTER)}&$orderby={quote(ORDER_BY)}&{selections}&$skip={250*page_number}&{expansions}"
     else:
@@ -65,10 +65,7 @@ def _get_decision_votes(case: dict, voted_in_favor=True):
 
 def _get_decision_status(case: dict) -> str:
     statuses = [decision.get(f"{DECISION}{TEXT}") for decision in case.get(DECISION)]
-    if len(statuses) == 1:
-        return statuses[0]
-    else:
-        return [status for status in statuses if status != "Ingediend"][0]
+    return statuses[0]
 
 
 def _get_motion_text(motion) -> str:
