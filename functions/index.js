@@ -217,8 +217,10 @@ async function _generate_parties_overview(hits){
       }
     }
   }
+  const motions = hits.filter((hit)=>{return hit.members})
+  const partyOverlaps = _get_overlapping_parties(motions, _get_hit_parties(motions).map((tuple)=>{return tuple[0]}))
   const party_occurance_tuples  = _get_hit_parties(hits)  
-  const motion_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return hit.members})))
+  const motion_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(motions))
   const program_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return !hit.members})))
   for(party_index in party_occurance_tuples){
     var party_pic = null
@@ -226,7 +228,111 @@ async function _generate_parties_overview(hits){
     party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
     total_hits += party_hits.length
   }
-  return [hits, pics_per_party, total_hits, party_occurance_tuples, motion_party_occurance_tuples, program_party_occurance_tuples]
+  return [hits, pics_per_party, total_hits, party_occurance_tuples, motion_party_occurance_tuples, program_party_occurance_tuples, partyOverlaps]
+}
+
+
+function _get_party_stance(motion, party){
+  if(motion.parties.includes(party)){
+    return 1
+  }
+  else if(motion.votes_for.map((vote)=>{return vote.ActorFractie}).includes(party)){
+    return 0;
+  }
+  else {
+    return -1
+  }
+}
+
+
+function _get_party_agreement_distance(motion, partyX, partyY){
+  const partyXStance = _get_party_stance(motion, partyX)
+  const partyYStance = _get_party_stance(motion, partyY)
+  return Math.abs(partyXStance - partyYStance) // get distance
+}
+
+function _get_overlapping_parties(motions, parties){
+  //calculate the overlap between parties
+  console.log(parties)
+  var overlaps = {}
+  const maxDistance = motions.length * 2;
+  for(motion of motions){
+    for(party of parties){
+      if(!overlaps[party]){
+        overlaps[party] = {}
+      }
+      for(otherParty of parties){
+        if(party == otherParty){
+          continue
+        }
+        if(overlaps[otherParty] && overlaps[otherParty][party]){
+          //dont do double work
+          continue
+        }
+        var agreementDistance = _get_party_agreement_distance(motion, party, otherParty);
+        if(!overlaps[party][otherParty]){
+          overlaps[party][otherParty] = maxDistance;
+        }
+        overlaps[party][otherParty] -= agreementDistance;
+      } 
+    }
+  }
+  // all overlaps are now between 0 and maxDistance
+  // the higher the number, the better the match
+  
+  // find best and worst matches
+  var bestScore = 0;
+  var worstScore = maxDistance;
+
+  var bestTuple = []
+  var worstTuple = []
+  for(party in overlaps){
+    for(otherParty in overlaps){
+      if(overlaps[party][otherParty] > bestScore){
+        bestScore = overlaps[party][otherParty]
+        bestTuple = [party, otherParty]
+      }
+      if(overlaps[party][otherParty] < worstScore){
+        worstScore = overlaps[party][otherParty]
+        worstTuple = [party, otherParty]
+      }
+    }
+  }
+
+  // transform to venn
+  var vennData = []
+  for(party of worstTuple){
+    vennData.push({
+      x: party,
+      value: maxDistance,
+      name: party,
+    })
+  }
+
+ 
+    
+  vennData.push({
+      x: [worstTuple[0], worstTuple[1]],
+      value: overlaps[worstTuple[0]][worstTuple[1]],
+      name: overlaps[worstTuple[0]][worstTuple[1]]
+    })
+
+  for(party of bestTuple){
+    vennData.push({
+      x: party,
+      value: maxDistance,
+      name: party,
+    })  
+  }
+
+  vennData.push({
+    x: [bestTuple[0], bestTuple[1]],
+    value: overlaps[bestTuple[0]][bestTuple[1]],
+    name: overlaps[bestTuple[0]][bestTuple[1]]
+  })
+  
+  return vennData
+
 }
 
 function _merge_tuple_lists(tuple_list, other_tuple_list){
