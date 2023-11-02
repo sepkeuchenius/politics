@@ -5,6 +5,11 @@ var PICS_PER_PARTY = {}
 document.addEventListener('DOMContentLoaded', function () {
   search = firebase.functions().httpsCallable('search');
   $("#query").focus()
+  const searchParams = new URLSearchParams(window.location.search);
+  if(searchParams.has('q')){
+    $('#query').val(searchParams.get("q"))
+    performQuery()
+  }
 });
 
 
@@ -23,11 +28,13 @@ function getHitNode(hit, index) {
 
 }
 function performQuery() {
+  $(".loader").show()
   queryText = document.getElementById("query").value
   search({ "query": queryText }).then(loadResults)
 }
 
 function loadResults(res) {
+  $(".loader").hide()
   $("#results").empty()
   console.log(res.data)
   var totalHits = res.data[2]
