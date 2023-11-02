@@ -36,11 +36,32 @@ function loadResults(res) {
   var party_occurance_tuples = res.data[3]
   var motion_party_occurance_tuples = res.data[4]
   var program_party_occurance_tuples = res.data[5]
+  var partyOverlaps = res.data[6]
   PICS_PER_PARTY = pics_per_party
   createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
   loadDocs(hits)
+  createVennDiagram(partyOverlaps)
 }
 var chart;
+var vennChart;
+function createVennDiagram(data){
+  $(".venn").empty()
+  if(data.length > 2){
+    // creating a venn diagram with the data
+    vennChart = anychart.venn([data[0], data[1], data[2]]);
+    // setting the labels
+    // setting the chart title
+    vennChart.title("Minst overeenkomend");
+    // setting the container id
+    vennChart.container("least-agreed-venn");
+    // drawing the diagram
+    vennChart.width(300)
+    vennChart.draw();
+    vennChart.background("var(--white)")
+
+    $(".anychart-credits").remove()
+  }
+}
 function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples){
   $("#chart").empty()
   if(chart){
@@ -68,6 +89,7 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
 
     },
     options: {
+      scaleShowValues: true,
       scales: {
         y: {
           beginAtZero: true,
@@ -75,7 +97,10 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
         },
         x: {
           stacked: true,
-        },
+          ticks: {
+            autoSkip: false
+          }
+        }
       },
       onClick: (e, elements) => {
         const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
@@ -132,6 +157,9 @@ function createPartiesSquare(party_occurance_tuples, totalHits) {
 }
 
 function loadDocs(docs) {
+  $("#results").text(
+    `${docs.length} resultaten in moties en partijprogramma's.`
+  )
   $("#docs").empty()
   DOCS = []
   for (doc of docs) {

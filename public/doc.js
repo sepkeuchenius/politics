@@ -9,9 +9,18 @@ class Doc {
             this.docType = "motion";
         }
         this.text = this.findHiglight()
-        this.fullText = this.data.text
+        this.fullText = this.findFullText()
     }
 
+    findFullText(){
+        if(this.data._highlightResult && this.data._highlightResult.text.matchLevel != "none"){
+            const highlighted = this.data._highlightResult.text.value
+            return highlighted
+        }
+        else{
+            return this.data.text
+        }
+    }
     findHiglight(){
         if(this.data._highlightResult && this.data._highlightResult.text.matchLevel != "none"){
             const highlighted = this.data._highlightResult.text.value
@@ -20,11 +29,11 @@ class Doc {
             //find the sentence
             for(var index in sentences){
                 if (sentences[index].indexOf("<em>") != -1){
-                    return realSentences[index]
+                    return sentences[index].substring(0,100) + "..."
                 }
             }
         }
-        return this.data.text
+        return this.data.text.substring(0,100) + "..."
     }
 
     draw() {
@@ -32,7 +41,7 @@ class Doc {
         var shapeText = $("<p>")
         shape.attr("id", this.id)
         shape.addClass("doc");
-        shapeText.text(this.text)
+        shapeText.html(this.text)
         shape.append(shapeText)
 
         shape.on("click", openDoc)
@@ -72,6 +81,11 @@ class Motion extends Doc {
             status.css('color', 'var(--white)')
             shape.append(status)
         }
+        else {
+            status.css('background', '--var(second)')
+            status.css('color', 'var(--white)')
+            shape.append(status)
+        }
 
 
         var motion_parties = $("<div>")
@@ -86,24 +100,60 @@ class Motion extends Doc {
                 party_img.css("left", `${left}px`)
                 party_img.css("top", `${top}px`)
                 motion_parties.append(party_img)
-                var newPosition = calcPartyImagePosition(left, top)
+                var newPosition = calcPartyImagePosition(left, top, 300)
                 left = newPosition[0]; top = newPosition[1];
+            }
+            else {
+                console.log(party)
             }
         }
         shape.append(motion_parties)
         shape.append(motion)
     }
-
+    getMembers(){
+        return this.data.members
+    }
+    getSubject(){
+        if(doc.data.Onderwerp.includes("van de leden") || doc.data.Onderwerp.includes("van het lid")){
+            if(doc.data.Onderwerp.includes(" over ")){
+                var split;
+                if(doc.data.Onderwerp.includes("van de leden")){
+                    split = doc.data.Onderwerp.split("van de leden")[1].split(" over ")
+                }
+                else{
+                    split = doc.data.Onderwerp.split("van het lid")[1].split(" over ")
+                }
+                const subject = split[1]
+                return sentence(subject)
+            }
+        }
+        return sentence(doc.data.Onderwerp)
+    }
+    getFormattedDate(){
+        const dateTime = new Date(this.data.Datum)
+        const yyyy = dateTime.getFullYear();
+        let mm = dateTime.getMonth() + 1; // Months start at 0!
+        let dd = dateTime.getDate();
+    
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+    
+        return  dd + '/' + mm + '/' + yyyy;
+    }
+}
+function sentence(string){
+    string[0] = string[0].toUpperCase()
+    if (string[-1] != '.') string += "."
+    return string
 }
 
-function calcPartyImagePosition(left, top){
+function calcPartyImagePosition(left, top, outerRight = 200){
     const width = 40;
     const height = 40;
     const xOverlap = 5;
     const yOverlap = 5
     const xMove = width - xOverlap;
     const yMove = height - yOverlap;
-    const outerRight = 200;
     if(left + (xMove * 2) > outerRight){
         return [0, top + yMove];
     }
@@ -146,21 +196,49 @@ function openDoc() {
     var docElement = $(this)
     const doc = getDocById(docElement.attr("id"))
     $('#doc').show();
-
-
+    const dateEl = $("#date");    
+    if(doc.data.Datum){
+        dateEl.text(doc.getFormattedDate());
+        dateEl.show()
+    }
+    else {
+        dateEl.hide()
+    }
+    if(doc.data.summary){
+        var textPiece = $("<p>");
+        textPiece.html(doc.data.summary);
+        textPiece.addClass("text-piece");
+        textPiece.addClass("summary");
+        var sourceTextPiece = $("<p>");
+        sourceTextPiece.addClass("source-text-piece");
+        sourceTextPiece.text("Samenvatting motie")
+        $("#doc .content").append(sourceTextPiece)
+        $("#doc .content").append(textPiece)
+        var sourceTextPiece = $("<p>");
+        sourceTextPiece.addClass("source-text-piece");
+        sourceTextPiece.text("Volledige motie")
+        $("#doc .content").append(sourceTextPiece)
+    }
     const motionText = doc.fullText
     const motionTexts = motionText.split(";")
     for (var index in motionTexts) {
         var text = motionTexts[index]
         var textPiece = $("<p>");
-        textPiece.text(text);
+        textPiece.html(text);
         textPiece.addClass("text-piece");
         textPiece.css("background-color", `rgb(196,227, ${200 + (Number(index) * 10)})`)
         $("#doc .content").append(textPiece)
     }
     $("#doc .members").append(docElement.find(".motion-parties").clone().show())
     if (doc.docType == "motion") {
-        $("#doc .title").text(`Motie ${doc.data.Titel}`);
+       
+        for(var member of doc.getMembers()){
+            memberSpan = $("<span>")
+            memberSpan.text(member)
+            memberSpan.addClass('motion-title-member')
+            memberSpan.insertBefore(dateEl)
+        }
+        $("#doc .title").text(doc.getSubject());
 
         //we can clone the status tag from the original doc 
         docElement.find(".status-tag").clone().insertAfter("#doc .votes-against")
@@ -201,9 +279,13 @@ function openDoc() {
         }
         $("#doc .votes-against").append(votes_against_parties)
 
-        $("#doc .votes-for-parties").css("height", getHeight($("#doc .votes-for-parties")))
-        $("#doc .votes-against-parties").css("height", getHeight($("#doc .votes-against-parties")))
-        $("#doc .members").css("height", getHeight($("#doc .members")))
+        
+
+        window.setTimeout(()=>{
+            $("#doc .votes-for-parties").css("height", getHeight($("#doc .votes-for-parties")))
+            $("#doc .votes-against-parties").css("height", getHeight($("#doc .votes-against-parties")))
+            $("#doc .members").css("height", getHeight($("#doc .members")))
+        },100) 
     }
     else {
         $("#doc .title").text("Programma")
