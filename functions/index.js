@@ -306,7 +306,9 @@ function _get_overlapping_parties(motions, parties){
       }
     }
   }
-
+  if(bestTuple.length < 2){
+    return []
+  }
   // transform to venn
   var vennData = []
   for(party of worstTuple){
@@ -318,7 +320,7 @@ function _get_overlapping_parties(motions, parties){
   }
 
  
-    
+  
   vennData.push({
       x: [worstTuple[0], worstTuple[1]],
       value: overlaps[worstTuple[0]][worstTuple[1]],

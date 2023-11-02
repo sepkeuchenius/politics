@@ -140,7 +140,6 @@ class Motion extends Doc {
     
         return  dd + '/' + mm + '/' + yyyy;
     }
-
 }
 function sentence(string){
     string[0] = string[0].toUpperCase()
@@ -205,7 +204,21 @@ function openDoc() {
     else {
         dateEl.hide()
     }
-    
+    if(doc.data.summary){
+        var textPiece = $("<p>");
+        textPiece.html(doc.data.summary);
+        textPiece.addClass("text-piece");
+        textPiece.addClass("summary");
+        var sourceTextPiece = $("<p>");
+        sourceTextPiece.addClass("source-text-piece");
+        sourceTextPiece.text("Samenvatting motie")
+        $("#doc .content").append(sourceTextPiece)
+        $("#doc .content").append(textPiece)
+        var sourceTextPiece = $("<p>");
+        sourceTextPiece.addClass("source-text-piece");
+        sourceTextPiece.text("Volledige motie")
+        $("#doc .content").append(sourceTextPiece)
+    }
     const motionText = doc.fullText
     const motionTexts = motionText.split(";")
     for (var index in motionTexts) {
@@ -218,6 +231,7 @@ function openDoc() {
     }
     $("#doc .members").append(docElement.find(".motion-parties").clone().show())
     if (doc.docType == "motion") {
+       
         for(var member of doc.getMembers()){
             memberSpan = $("<span>")
             memberSpan.text(member)

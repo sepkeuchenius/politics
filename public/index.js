@@ -46,28 +46,21 @@ var chart;
 var vennChart;
 function createVennDiagram(data){
   $(".venn").empty()
-  // creating a venn diagram with the data
-  vennChart = anychart.venn([data[0], data[1], data[2]]);
-  // setting the labels
-  // setting the chart title
-  vennChart.title("Minst eens");
-  // setting the container id
-  vennChart.container("least-agreed-venn");
-  // drawing the diagram
-  vennChart.width(300)
-  vennChart.draw();
+  if(data.length > 2){
+    // creating a venn diagram with the data
+    vennChart = anychart.venn([data[0], data[1], data[2]]);
+    // setting the labels
+    // setting the chart title
+    vennChart.title("Minst overeenkomend");
+    // setting the container id
+    vennChart.container("least-agreed-venn");
+    // drawing the diagram
+    vennChart.width(300)
+    vennChart.draw();
+    vennChart.background("var(--white)")
 
-
-  let otherChart = anychart.venn([data[3], data[4], data[5]]);
-  // setting the labels
-  // setting the chart title
-  otherChart.title("Meest eens");
-  // setting the container id
-  otherChart.container("most-agreed-venn");
-  // drawing the diagram
-  otherChart.draw();
-
-  $(".anychart-credits").remove()
+    $(".anychart-credits").remove()
+  }
 }
 function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples){
   $("#chart").empty()

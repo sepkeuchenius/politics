@@ -328,5 +328,16 @@ em {
 }
 #venn-container {
   margin:30px auto;
-  width: 50%;
+  width: 25%;
+}
+.summary {
+  color:#ad7474;
+  font-style: italic;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+  padding: 30px !important;
+}
+.source-text-piece{
+  text-align: center;
+  width:100%;
+  padding: 10px 0;
 }
