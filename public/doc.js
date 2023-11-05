@@ -1,3 +1,4 @@
+const MAX_TEXT = 300
 class Doc {
     constructor(hitObject) {
         this.data = hitObject;
@@ -32,13 +33,16 @@ class Doc {
             }
         }
         else if(this.data._highlightResult && this.data._highlightResult.text && this.data._highlightResult.text.matchLevel != "none"){
+            if(this.data._highlightResult.text.value.length < MAX_TEXT){
+                return this.data._highlightResult.text.value
+            }
             const highlighted = this.data._highlightResult.text.value
-            const sentences = highlighted.split(/[,;.]/)
-            const realSentences = this.data.text.split(/[,;.]/)
+            const sentences = highlighted.split(/[.]/)
+            const realSentences = this.data.text.split(/[.]/)
             //find the sentence
             for(var index in sentences){
                 if (sentences[index].indexOf("<em>") != -1){
-                    var highLightedArea = this.data.text.slice(this.data._highlightResult.text.value.indexOf(sentences[index]), this.data.text.indexOf(realSentences[index]) + 300)
+                    var highLightedArea = this.data.text.slice(this.data._highlightResult.text.value.indexOf(sentences[index]), this.data.text.indexOf(realSentences[index]) + MAX_TEXT)
                     if(this.getSubject()){
                         return `<b>${this.getSubject()}</b><br><br>${highLightedArea}`
                     }
@@ -230,7 +234,7 @@ function openDoc() {
     else {
         dateEl.hide()
     }
-    if(doc.data.summary){
+    if(doc.data.summary && doc.docType == "motion"){
         var textPiece = $("<p>");
         textPiece.html(doc.data.summary);
         textPiece.addClass("text-piece");

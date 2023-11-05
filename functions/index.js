@@ -107,6 +107,7 @@ function _get_all_parties(docs){
 
 async function _generate_parties_overview(hits){
   var motionParties = []
+  hits = hits.filter((hit)=>{return hit.text.split(" ").length > 6})
   for(var hit of hits){
     if(hit.party){
       hit.party = mapParty(hit.party)

@@ -148,7 +148,7 @@ body {
 }
 .doc {
   width:calc(50% - 10px);
-  height:200px;
+  min-height:200px;
   border-radius:20px;
   display: inline-block;
   cursor:pointer;
@@ -368,6 +368,8 @@ em {
   border-radius: 20px;
   height: 50px;
   vertical-align: bottom;
+  position: relative;
+  padding-left:45px;
 }
 
 #facts {
@@ -379,4 +381,10 @@ u{
   text-decoration-style: dashed;
   text-decoration-thickness: 3px;
   text-decoration-skip-ink: none;
+}
+.info {
+  color: var(--accent);
+  position:absolute;
+  left: 10px;
+  top:12px;
 }

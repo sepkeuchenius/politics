@@ -51,6 +51,10 @@ function loadResults(res) {
 
 function _create_fact_el() {
   var el = $("<p>")
+  var icon = $("<span>")
+  icon.addClass("material-symbols-outlined info")
+  icon.text("info")
+  el.append(icon)
   el.addClass("fact")
   $("#facts").append(el)
   return el
@@ -59,16 +63,16 @@ function _create_fact_el() {
 function createFacts(all_data) {
   $("#facts").empty()
   if (all_data.most_active_party[1] > 0) {
-    _create_fact_el().html(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
+    _create_fact_el().append(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
   }
   if (all_data.most_cooperating_parties[2] > 0) {
-    _create_fact_el().html(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
+    _create_fact_el().append(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
   }
   if (all_data.biggest_fan_party[1] > 0) {
-    _create_fact_el().html(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
+    _create_fact_el().append(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
   }
   if (all_data.biggest_blocking_party[1] >= 0) {
-    _create_fact_el().html(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
+    _create_fact_el().append(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
   }
 }
 
@@ -77,18 +81,11 @@ var vennChart;
 function createVennDiagram(data) {
   $(".venn").empty()
   if (data.length > 2) {
-    // creating a venn diagram with the data
     vennChart = anychart.venn([data[0], data[1], data[2]]);
-    // setting the labels
-    // setting the chart title
     vennChart.title("Minst overeenkomend stemgedrag");
-    // setting the container id
     vennChart.container("least-agreed-venn");
-    // drawing the diagram
-    vennChart.width(300)
     vennChart.draw();
     vennChart.background("var(--white)")
-
     $(".anychart-credits").remove()
   }
 }
