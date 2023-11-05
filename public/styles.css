@@ -122,7 +122,7 @@ body {
 #docs {
   width:100%;
   box-sizing: border-box;
-  padding: 0 calc(50% - 400px);
+  padding: 0 calc(50% - 500px);
 }
 
 .hit {
@@ -148,7 +148,7 @@ body {
 }
 .doc {
   width:calc(50% - 10px);
-  height:100px;
+  height:200px;
   border-radius:20px;
   display: inline-block;
   cursor:pointer;
@@ -328,7 +328,7 @@ em {
 }
 #venn-container {
   margin:30px auto;
-  width: 25%;
+  width: 300px; 
 }
 .summary {
   color:#ad7474;
@@ -355,4 +355,28 @@ em {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.fact {
+  text-align: center;
+  padding: 5px 20px;
+  background: var(--third);
+  margin: 5px 2px;
+  color: var(--white);
+  width: calc(50% - 4px);
+  box-sizing: border-box;
+  display: inline-block;
+  border-radius: 20px;
+  height: 50px;
+  vertical-align: bottom;
+}
+
+#facts {
+  width: 700px;
+  margin: 0 auto;
+}
+u{
+  text-decoration-color: var(--accent);
+  text-decoration-style: dashed;
+  text-decoration-thickness: 3px;
+  text-decoration-skip-ink: none;
 }

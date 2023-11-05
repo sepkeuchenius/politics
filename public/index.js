@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   search = firebase.functions().httpsCallable('search');
   $("#query").focus()
   const searchParams = new URLSearchParams(window.location.search);
-  if(searchParams.has('q')){
+  if (searchParams.has('q')) {
     $('#query').val(searchParams.get("q"))
     performQuery()
   }
@@ -37,28 +37,51 @@ function loadResults(res) {
   $(".loader").hide()
   $("#results").empty()
   console.log(res.data)
-  var totalHits = res.data[2]
-  var hits = res.data[0]
-  var pics_per_party = res.data[1]
-  var party_occurance_tuples = res.data[3]
-  var motion_party_occurance_tuples = res.data[4]
-  var program_party_occurance_tuples = res.data[5]
-  var partyOverlaps = res.data[6]
+  var hits = res.data.all_hits
+  var pics_per_party = res.data.pics_per_party
+  var motion_party_occurance_tuples = res.data.motion_party_occurance_tuples
+  var program_party_occurance_tuples = res.data.program_party_occurance_tuples
+  var partyOverlaps = res.data.party_overlaps
   PICS_PER_PARTY = pics_per_party
   createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
   loadDocs(hits)
   createVennDiagram(partyOverlaps)
+  createFacts(res.data)
 }
+
+function _create_fact_el() {
+  var el = $("<p>")
+  el.addClass("fact")
+  $("#facts").append(el)
+  return el
+}
+
+function createFacts(all_data) {
+  $("#facts").empty()
+  if (all_data.most_active_party[1] > 0) {
+    _create_fact_el().html(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
+  }
+  if (all_data.most_cooperating_parties[2] > 0) {
+    _create_fact_el().html(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
+  }
+  if (all_data.biggest_fan_party[1] > 0) {
+    _create_fact_el().html(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
+  }
+  if (all_data.biggest_blocking_party[1] >= 0) {
+    _create_fact_el().html(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
+  }
+}
+
 var chart;
 var vennChart;
-function createVennDiagram(data){
+function createVennDiagram(data) {
   $(".venn").empty()
-  if(data.length > 2){
+  if (data.length > 2) {
     // creating a venn diagram with the data
     vennChart = anychart.venn([data[0], data[1], data[2]]);
     // setting the labels
     // setting the chart title
-    vennChart.title("Minst overeenkomend");
+    vennChart.title("Minst overeenkomend stemgedrag");
     // setting the container id
     vennChart.container("least-agreed-venn");
     // drawing the diagram
@@ -69,26 +92,26 @@ function createVennDiagram(data){
     $(".anychart-credits").remove()
   }
 }
-function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples){
+function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples) {
   $("#chart").empty()
-  if(chart){
+  if (chart) {
     chart.destroy()
   }
   const ctx = document.getElementById('chart');
   chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: motion_party_occurance_tuples.map((party)=>{return party[0]}),
+      labels: motion_party_occurance_tuples.map((party) => { return party[0] }),
       datasets: [{
         label: 'Moties',
-        data: motion_party_occurance_tuples.map((party)=>{return party[1]}),
+        data: motion_party_occurance_tuples.map((party) => { return party[1] }),
         borderWidth: 1,
         backgroundColor: '#C4E3CB',
         borderRadius: 20
       },
       {
         label: 'Partijprogramma',
-        data: program_party_occurance_tuples.map((party)=>{return party[1]}),
+        data: program_party_occurance_tuples.map((party) => { return party[1] }),
         borderWidth: 1,
         backgroundColor: '#8AAE92',
         borderRadius: 20
@@ -96,6 +119,12 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
 
     },
     options: {
+      plugins: {
+        title: {
+          display: true,
+          text: 'Activiteit'
+        }
+      },
       scaleShowValues: true,
       scales: {
         y: {
@@ -111,7 +140,7 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
       },
       onClick: (e, elements) => {
         const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
-        if(elements[0]){
+        if (elements[0]) {
           const i = elements[0].index;
           const party = motion_party_occurance_tuples[i];
           loadPartyDocs(party[0])
@@ -170,7 +199,7 @@ function loadDocs(docs) {
   $("#docs").empty()
   DOCS = []
   for (doc of docs) {
-    if(!(doc.status || doc.party)){continue}
+    if (!(doc.status || doc.party)) { continue }
     if (doc.party) {
       program = new Program(doc);
       program.draw();

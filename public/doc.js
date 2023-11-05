@@ -22,18 +22,53 @@ class Doc {
         }
     }
     findHiglight(){
-        if(this.data._highlightResult && this.data._highlightResult.text.matchLevel != "none"){
+        if(this.data._highlightResult && this.data._highlightResult.summary && this.data._highlightResult.summary.matchLevel != "none"){
+           return `<b>${this.getSubject()}</b><br><br>${this.data.summary.substring(0,400)}`
+        }
+        else if(this.data._highlightResult && this.data._highlightResult.text && this.data._highlightResult.text.matchLevel != "none"){
             const highlighted = this.data._highlightResult.text.value
             const sentences = highlighted.split(/[,;.]/)
             const realSentences = this.data.text.split(/[,;.]/)
             //find the sentence
             for(var index in sentences){
                 if (sentences[index].indexOf("<em>") != -1){
-                    return sentences[index].substring(0,100) + "..."
+                    if(this.getSubject()){
+                        return `<b>${this.getSubject()}</b><br><br>${this.data.text.slice(this.data._highlightResult.text.value.indexOf(sentences[index]), this.data.text.indexOf(realSentences[index]) + 300)}`
+                    }
+                    else{
+                        return `${sentences.slice(index, sentences.length).join(" ").substring(0,400)}...`
+                    }
                 }
             }
         }
-        return this.data.text.substring(0,100) + "..."
+        
+        if(this.getSubject){
+            return `<b>${this.getSubject()}</b><br>${this.data.text.substring(0,400)}...`
+        }
+        else {
+            return `${this.data.text.substring(0,400)}...`
+        }
+    }
+    getSubject(){
+        if(this.data.Onderwerp && (this.data.Onderwerp.includes("van de leden") || this.data.Onderwerp.includes("van het lid"))){
+            if(this.data.Onderwerp.includes(" over ")){
+                var split;
+                if(this.data.Onderwerp.includes("van de leden")){
+                    split = this.data.Onderwerp.split("van de leden")[1].split(" over ")
+                }
+                else{
+                    split = this.data.Onderwerp.split("van het lid")[1].split(" over ")
+                }
+                const subject = split[1]
+                return sentence(subject)
+            }
+        }
+        else if(this.data.Onderwerp){
+            return sentence(this.data.Onderwerp)
+        }
+        else{
+            return false
+        }
     }
 
     draw() {
@@ -113,22 +148,6 @@ class Motion extends Doc {
     getMembers(){
         return this.data.members
     }
-    getSubject(){
-        if(doc.data.Onderwerp.includes("van de leden") || doc.data.Onderwerp.includes("van het lid")){
-            if(doc.data.Onderwerp.includes(" over ")){
-                var split;
-                if(doc.data.Onderwerp.includes("van de leden")){
-                    split = doc.data.Onderwerp.split("van de leden")[1].split(" over ")
-                }
-                else{
-                    split = doc.data.Onderwerp.split("van het lid")[1].split(" over ")
-                }
-                const subject = split[1]
-                return sentence(subject)
-            }
-        }
-        return sentence(doc.data.Onderwerp)
-    }
     getFormattedDate(){
         const dateTime = new Date(this.data.Datum)
         const yyyy = dateTime.getFullYear();
@@ -142,7 +161,7 @@ class Motion extends Doc {
     }
 }
 function sentence(string){
-    string[0] = string[0].toUpperCase()
+    string = string[0].toUpperCase() + string.substring(1)
     if (string[-1] != '.') string += "."
     return string
 }

@@ -48,10 +48,6 @@ function _get_unique_elements(list){
 }
 
 
-function _get_root_size(root, hits){
-  return (hits.filter((hit) => {return hit.member == root.label || hit.party == root.label}).length / hits.length) * 250
-}
-
 function _get_hit_parties(hits){
   var parties = []
   for(hit of hits){
@@ -87,86 +83,6 @@ function _get_hit_parties(hits){
   return party_occurance_tuples;
 }
 
-function _get_hit_members(hits){
-  var members = []
-  for(hit of hits){
-    members = members.concat(hit.members)
-  }
-  return _get_unique_elements(members)
-}
-
-function _generate_root_node(party, pic_url=null){
-  var node = {
-    "id": party,
-    "label": party,
-    "color": "orange", 
-    "heightConstraint": {"minimum": 40},
-    "widthConstraint": {"minimum": 40},
-    "root": true
-  }
-  if(pic_url){
-    node["shape"] = "image";
-    node["image"] = pic_url
-  }
-  return node
-}
-
-function _generate_node(hit){
-  return {
-    "root": false,
-    "id": hit.objectID,
-    "label": _find_highlight(hit).substring(0, 10) + "...",
-    "heightConstraint": {"minimum": 30},
-    "title": hit.text,
-    "shape": "box",
-    "margin": 10,
-    "color": {
-      "background": "#F4F4F4",
-      "border": "#11999E",
-      "highlight": "#11999E"
-    },
-    "borderWidth": 1
-    }
-}
-
-function _find_highlight(hit){
-  var highlightText  = hit._highlightResult.text
-  if(highlightText){
-      highlightText = highlightText.value
-  }
-  else{
-      return false
-  }
-  var highLightSentences = highlightText.split(".")
-  for(sentence of highLightSentences){
-      if(sentence.includes("<em>")){
-        var filteredSentence = sentence
-        while(filteredSentence.includes("<em>")){     
-          filteredSentence = filteredSentence.replace("<em>", "").replace("</em>", "")
-        }
-        return _clean_text(filteredSentence)
-    }
-  }
-  return highlightText;
-}
-
-function _generate_member_node(member_name){
-  return {
-    "root": false,
-    "id": member_name,
-    "label": member_name,
-    "heightConstraint": {"minimum": 30},
-    "title": member_name,
-    "shape": "circle",
-    "margin": 10,
-    "color": {
-      "background": "#FFF9E0",
-      "border": "#11999E",
-      "highlight": "#11999E"
-    },
-    "borderWidth": 1
-    }
-}
 
 function _get_all_parties(docs){
   var parties = []
@@ -188,6 +104,7 @@ function _get_all_parties(docs){
   return _get_unique_elements(parties)
 }
 
+
 async function _generate_parties_overview(hits){
   var motionParties = []
   for(var hit of hits){
@@ -206,7 +123,7 @@ async function _generate_parties_overview(hits){
     if(hit.votes_against && hit.votes_against.length > 0){
       hit.votes_against = _get_unique_elements(hit.votes_against.map((vote)=>{vote.ActorFractie = mapParty(vote.ActorFractie); return vote}))
       hit.total_votes_against = hit.votes_against.map((vote)=>{return vote.FractieGrootte}).reduce((total, n)=>{return total + n})
-      motionParties = motionParties.concat(hit.votes_against.map((vote)=>{return vote.votes_against}))
+      motionParties = motionParties.concat(hit.votes_against.map((vote)=>{return vote.ActorFractie}))
     }
   }
   motionParties = _get_unique_elements(motionParties)
@@ -223,17 +140,27 @@ async function _generate_parties_overview(hits){
     }
   }
   const motions = hits.filter((hit)=>{return hit.members})
-  const partyOverlaps = _get_overlapping_parties(motions, motionParties)
   const party_occurance_tuples  = _get_hit_parties(hits)  
-  const motion_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(motions))
-  const program_party_occurance_tuples  = _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return !hit.members})))
   for(party_index in party_occurance_tuples){
     var party_pic = null
     party = party_occurance_tuples[party_index][0]
     party_hits = hits.filter((hit) => {return hit.party == party || (hit.parties && hit.parties.includes(party))})
     total_hits += party_hits.length
   }
-  return [hits, pics_per_party, total_hits, party_occurance_tuples, motion_party_occurance_tuples, program_party_occurance_tuples, partyOverlaps]
+
+  return {
+    all_hits: hits, 
+    pics_per_party: pics_per_party, 
+    n_hits: total_hits, 
+    all_party_occurance_tuples: party_occurance_tuples, 
+    motion_party_occurance_tuples: _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(motions)), 
+    program_party_occurance_tuples: _merge_tuple_lists(party_occurance_tuples, _get_hit_parties(hits.filter((hit)=>{return !hit.members}))), 
+    party_overlaps:  _get_overlapping_parties(motions, motionParties), 
+    biggest_blocking_party: _get_biggest_blocker(motions, motionParties), 
+    biggest_fan_party: _get_biggest_fan(motions, motionParties),
+    most_active_party: _get_most_active_party(motions, motionParties), 
+    most_cooperating_parties: _get_cooperating_parties_in_motions(motions, motionParties)[0], 
+  }
 }
 
 
@@ -255,6 +182,94 @@ function _get_party_agreement_distance(motion, partyX, partyY){
   const partyYStance = _get_party_stance(motion, partyY)
   return Math.abs(partyXStance - partyYStance) // get distance
 }
+//samenwerking: meest gecombineerde motie indieners
+//tegenwerking: meest geblokkeerde moties
+//meewerking: meest geaccepteerde motie waar niet aan is megedaan
+//tegenstellend: meeste afstand
+//ijverig: meest ingediende moties
+
+function _get_cooperating_parties_in_motions(motions, parties){
+  var counter = {}
+  for(motion of motions){
+    for(party of motion.parties){
+      for(cooperatingParty of motion.parties.filter((coParty)=>{return party != coParty})){
+        combo = [party, cooperatingParty].sort()
+        firstKey = combo[0]
+        secondKey = combo[1]
+        if(!counter[firstKey]){
+          counter[firstKey] = {}
+        }
+        if(!counter[firstKey][secondKey]){
+          counter[firstKey][secondKey] = 1
+        }
+        else{
+          counter[firstKey][secondKey] += 1
+        }
+      }
+    }
+  }
+  var tuple_list = [] 
+  for(firstKey in counter){
+    for(secondKey in counter[firstKey]){
+      tuple_list.push([firstKey, secondKey, counter[firstKey][secondKey]])
+    }
+  }
+  tuple_list.sort((a,b)=>{return b[2] - a[2]})
+  return tuple_list
+}
+
+
+function _count_parties_actions_in_motions(motions, parties, get_action_function){
+  var counter = parties.map((party) => {return [party, 0]})
+  for(motion of motions){
+    const parties_against = get_action_function(motion)
+    console.log(parties_against)
+    for(party of parties_against){
+      for(party_count of counter){
+        if(party_count[0] == party){
+          party_count[1] += 1
+          break
+        }
+      }
+    }
+  }
+  console.log(counter)
+  counter.sort((a,b)=>{return b[1] - a[1]});
+  if(counter.length > 1 && counter[0][1] == counter[1][1]){
+    counter[0][0] = `(oa) ${counter[0][0]}`
+  }
+  console.log(counter, get_action_function)
+  return counter
+}
+
+
+function _get_motion_votes_for(motion){
+  return motion.votes_for.map((vote)=>{return vote.ActorFractie})
+}
+
+
+function _get_motion_votes_againts(motion){
+  return motion.votes_against.map((vote)=>{return vote.ActorFractie})
+}
+
+
+function _get_motion_parties(motion){
+  return motion.parties
+}
+
+
+function _get_most_active_party(motions, parties){
+  return _count_parties_actions_in_motions(motions, parties, _get_motion_parties)[0]
+}
+
+function _get_biggest_blocker(motions, parties){
+  return _count_parties_actions_in_motions(motions, parties, _get_motion_votes_againts)[0]
+}
+
+function _get_biggest_fan(motions, parties){
+  return _count_parties_actions_in_motions(motions, parties, _get_motion_votes_for)[0]
+}
+
 
 function _get_overlapping_parties(motions, parties){
   //calculate the overlap between parties
@@ -319,27 +334,11 @@ function _get_overlapping_parties(motions, parties){
     })
   }
 
- 
-  
   vennData.push({
       x: [worstTuple[0], worstTuple[1]],
       value: overlaps[worstTuple[0]][worstTuple[1]],
-      name: overlaps[worstTuple[0]][worstTuple[1]]
+      name: "Samen"
     })
-
-  for(party of bestTuple){
-    vennData.push({
-      x: party,
-      value: maxDistance,
-      name: party,
-    })  
-  }
-
-  vennData.push({
-    x: [bestTuple[0], bestTuple[1]],
-    value: overlaps[bestTuple[0]][bestTuple[1]],
-    name: overlaps[bestTuple[0]][bestTuple[1]]
-  })
   
   return vennData
 
