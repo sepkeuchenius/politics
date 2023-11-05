@@ -22,8 +22,14 @@ class Doc {
         }
     }
     findHiglight(){
-        if(this.data._highlightResult && this.data._highlightResult.summary && this.data._highlightResult.summary.matchLevel != "none"){
-           return `<b>${this.getSubject()}</b><br><br>${this.data.summary.substring(0,400)}`
+        if(this.data._highlightResult && this.data._highlightResult.summary && this.data._highlightResult.summary.matchLevel != "none" && this.docType == "motion"){
+            var summaryHighlight = this.data.summary.substring(0,400)
+            if(this.getSubject()){
+                return `<b>${this.getSubject()}</b><br><br>${summaryHighlight}`
+            }
+            else{
+                return summaryHighlight
+            }
         }
         else if(this.data._highlightResult && this.data._highlightResult.text && this.data._highlightResult.text.matchLevel != "none"){
             const highlighted = this.data._highlightResult.text.value
@@ -32,17 +38,18 @@ class Doc {
             //find the sentence
             for(var index in sentences){
                 if (sentences[index].indexOf("<em>") != -1){
+                    var highLightedArea = this.data.text.slice(this.data._highlightResult.text.value.indexOf(sentences[index]), this.data.text.indexOf(realSentences[index]) + 300)
                     if(this.getSubject()){
-                        return `<b>${this.getSubject()}</b><br><br>${this.data.text.slice(this.data._highlightResult.text.value.indexOf(sentences[index]), this.data.text.indexOf(realSentences[index]) + 300)}`
+                        return `<b>${this.getSubject()}</b><br><br>${highLightedArea}`
                     }
                     else{
-                        return `${sentences.slice(index, sentences.length).join(" ").substring(0,400)}...`
+                        return highLightedArea
                     }
                 }
             }
         }
         
-        if(this.getSubject){
+        if(this.getSubject()){
             return `<b>${this.getSubject()}</b><br>${this.data.text.substring(0,400)}...`
         }
         else {
