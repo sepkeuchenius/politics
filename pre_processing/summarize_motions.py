@@ -47,6 +47,7 @@ def _save_failed_summary(doc_id):
     with open("pre_processing/failed_summaries.json", "r") as failed_docs_file:
         failed_docs: list = json.load(failed_docs_file)
         failed_docs.append(doc_id)
+        FAILED_SUMMARIES.append(doc_id)
         with open("pre_processing/failed_summaries.json", "w") as failed_docs_file:
             json.dump(failed_docs, failed_docs_file)
 
@@ -64,11 +65,12 @@ def annotate_doc_with_summary(doc):
 
 def stream_docs():
     try:
-        stream = utils.COLLECTION.stream()
+        stream = utils.COLLECTION.order_by("Datum").stream()
         for index, doc in enumerate(stream):
             if index >= 5000:
                 break
             if "summary" not in doc.to_dict() and doc.id not in FAILED_SUMMARIES:
+                print(index)
                 annotate_doc_with_summary(doc)
     except Exception:
         stream_docs()
