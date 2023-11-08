@@ -388,3 +388,18 @@ u{
   left: 10px;
   top:12px;
 }
+#queries-history {
+  position: fixed;
+  height: 100%;;
+  width:300px;
+  background-color: var(--third);
+  text-align: center;
+  display: none;
+  left:0
+}
+.query-item {
+  padding: 7px 20px;
+  font-size: 20px;
+  display: block;
+  text-align: left;
+}

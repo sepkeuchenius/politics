@@ -4,14 +4,43 @@ const algoliasearch = require("algoliasearch");
 const client = algoliasearch('PD7R6XVZ97', process.env.ALGOLIA_API_KEY);
 const index = client.initIndex('parties');
 const { initializeApp } = require('firebase-admin/app');
+const { getDatabase } = require('firebase-admin/database');
+app = initializeApp()
 
-initializeApp()
 const bucket = getStorage().bucket()
 exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(async (data, context) => {
+  if(context.auth && context.auth.uid){
+    _save_user_query(data.query, context.auth.uid)
+  }
   return await index.search(data.query).then((res)=>{
     return _generate_parties_overview(res.hits);
   });
 });
+
+async function getUserQueries(data, context){
+  if(context.auth && context.auth.uid){
+    const db = getDatabase()
+    const usersRef = db.ref('users');
+    const queryRef =  usersRef.child(context.auth.uid).child("queries");
+    return await queryRef.once("value").then((res) => {
+      return Object.values(res.val())
+    }).catch((err) => {
+        functions.logger.log("test")
+        functions.logger.error(err)
+    })
+  }
+  else {
+    return "false"
+  }
+}
+
+exports.loadUserQueries  = functions.https.onCall(getUserQueries);
+
+function _save_user_query(query, uid){
+  const db = getDatabase()
+  const usersRef = db.ref('users');
+  usersRef.child(uid).child("queries").push(query)
+}
 
 const PARTY_MAPPER = {
   "OMTZIGT": "NSC",
@@ -224,7 +253,6 @@ function _count_parties_actions_in_motions(motions, parties, get_action_function
   var counter = parties.map((party) => {return [party, 0]})
   for(motion of motions){
     const parties_against = get_action_function(motion)
-    console.log(parties_against)
     for(party of parties_against){
       for(party_count of counter){
         if(party_count[0] == party){
@@ -234,12 +262,10 @@ function _count_parties_actions_in_motions(motions, parties, get_action_function
       }
     }
   }
-  console.log(counter)
   counter.sort((a,b)=>{return b[1] - a[1]});
   if(counter.length > 1 && counter[0][1] == counter[1][1]){
     counter[0][0] = `(oa) ${counter[0][0]}`
   }
-  console.log(counter, get_action_function)
   return counter
 }
 
@@ -274,7 +300,6 @@ function _get_biggest_fan(motions, parties){
 
 function _get_overlapping_parties(motions, parties){
   //calculate the overlap between parties
-  console.log(parties)
   var overlaps = {}
   const maxDistance = motions.length * 2;
   for(motion of motions){
@@ -303,7 +328,6 @@ function _get_overlapping_parties(motions, parties){
   
   // find best and worst matches
 
-  console.log(overlaps)
 
   var bestScore = 0;
   var worstScore = maxDistance;
