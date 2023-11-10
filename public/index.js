@@ -38,8 +38,14 @@ function showQueries(queries){
       queryEl.text(query);
       queryEl.addClass("query-item")
       $("#queries-history").append(queryEl)
+      queryEl.on("click", reExecuteQuery)
     }
   }
+}
+
+function reExecuteQuery(){
+  $("#query").val($(this).text())
+  performQuery($(this).text())
 }
 
 

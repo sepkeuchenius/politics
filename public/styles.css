@@ -402,4 +402,8 @@ u{
   font-size: 20px;
   display: block;
   text-align: left;
+  cursor: pointer;
+}
+.query-item:hover {
+  background-color: var(--second);
 }
