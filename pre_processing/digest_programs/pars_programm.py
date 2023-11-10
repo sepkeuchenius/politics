@@ -6,9 +6,9 @@ class PartyConfig:
     def __init__(self, party, year):
         self.party = party
         self.year = year
-        self.doc = f"pre_processing/data/programs/{year}/{party}.pdf"
+        self.doc = f"../data/programs/{year}/{party}.pdf"
         self.config = CONFIGS[year][party]
-        self.output_path = f"pre_processing/out/{year}/{party}.json"
+        self.output_path = f"../out/{year}/{party}.json"
 
 
 CONFIGS = {
@@ -18,8 +18,8 @@ CONFIGS = {
             "MARGIN_SIZE": 50,
             "PAR_MARGIN": 20,
         },
-        "BBB": {
-            "SKIP_PAGES": 1,
+        "bbb": {
+            "SKIP_PAGES": 6,
             "MARGIN_SIZE": 50,
             "PAR_MARGIN": 20,
         },
@@ -30,8 +30,88 @@ CONFIGS = {
         },
     },
     "2023": {
-        "VOLT": {
+        "bbb": {
+            "SKIP_PAGES": 6,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "bij1": {
+            "SKIP_PAGES": 7,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "bvnl": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "cda": {
             "SKIP_PAGES": 5,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "cu": {
+            "SKIP_PAGES": 5,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "d66": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "denk": {
+            "SKIP_PAGES": 13,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "fvd": {
+            "SKIP_PAGES": 3,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "gl-pvda": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "ja21": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "nsc": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "pvdd": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "pvv": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "sgp": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "sp": {
+            "SKIP_PAGES": 6,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "volt": {
+            "SKIP_PAGES": 4,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "vvd": {
+            "SKIP_PAGES": 2,
             "MARGIN_SIZE": 50,
             "PAR_MARGIN": 20,
         },
@@ -49,6 +129,11 @@ YEAR = input("Provide the year of the elecion: ")
 party_config = PartyConfig(PARTY, YEAR)
 
 DOC = fitz.open(party_config.doc)
+
+
+def _clean_text(text: str):
+    text = text.strip().strip("\n")
+    return text
 
 
 def _get_doc_paragraphs(doc, config: PartyConfig = None):
@@ -97,8 +182,3 @@ pars = [
 
 with open(party_config.output_path, "w+") as file:
     json.dump(pars, file, indent=2)
-
-
-def _clean_text(text: str):
-    text = text.strip().strip("\n")
-    return text
