@@ -25,7 +25,7 @@ function addQuery(query){
   var queryEl = $("<item>")
   queryEl.text(query);
   queryEl.addClass("query-item")
-  $("#queries-history").append(queryEl)
+  $(queryEl).insertAfter("#history-header")
 }
 
 function showQueries(queries){
