@@ -4,14 +4,43 @@ const algoliasearch = require("algoliasearch");
 const client = algoliasearch('PD7R6XVZ97', process.env.ALGOLIA_API_KEY);
 const index = client.initIndex('parties');
 const { initializeApp } = require('firebase-admin/app');
+const { getDatabase } = require('firebase-admin/database');
+app = initializeApp()
 
-initializeApp()
 const bucket = getStorage().bucket()
-exports.search = functions.runWith({ secrets: ["ALGOLIA_API_KEY"] }).https.onCall(async (data, context) => {
-  return await index.search(data.query).then((res) => {
+exports.search  = functions.runWith({secrets:["ALGOLIA_API_KEY"]}).https.onCall(async (data, context) => {
+  if(context.auth && context.auth.uid){
+    _save_user_query(data.query, context.auth.uid)
+  }
+  return await index.search(data.query).then((res)=>{
     return _generate_parties_overview(res.hits);
   });
 });
+
+async function getUserQueries(data, context){
+  if(context.auth && context.auth.uid){
+    const db = getDatabase()
+    const usersRef = db.ref('users');
+    const queryRef =  usersRef.child(context.auth.uid).child("queries");
+    return await queryRef.once("value").then((res) => {
+      return Object.values(res.val())
+    }).catch((err) => {
+        functions.logger.log("test")
+        functions.logger.error(err)
+    })
+  }
+  else {
+    return "false"
+  }
+}
+
+exports.loadUserQueries  = functions.https.onCall(getUserQueries);
+
+function _save_user_query(query, uid){
+  const db = getDatabase()
+  const usersRef = db.ref('users');
+  usersRef.child(uid).child("queries").push(query)
+}
 
 const PARTY_MAPPER = {
   "OMTZIGT": "NSC",

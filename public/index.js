@@ -4,13 +4,49 @@ SQUARE_HEIGHT = 100;
 var PICS_PER_PARTY = {}
 document.addEventListener('DOMContentLoaded', function () {
   search = firebase.functions().httpsCallable('search');
+  loadUserQueries = firebase.functions().httpsCallable('loadUserQueries');
   $("#query").focus()
   const searchParams = new URLSearchParams(window.location.search);
   if (searchParams.has('q')) {
     $('#query').val(searchParams.get("q"))
     performQuery()
   }
+
+  //login anonymousely
+  firebase.auth().signInAnonymously().then((res)=>{
+    loadUserQueries().then((res)=>{
+      showQueries(res.data)
+    })
+  })
 });
+
+function addQuery(query){
+  $("#queries-history").show();
+  var queryEl = $("<item>")
+  queryEl.text(query);
+  queryEl.addClass("query-item")
+  $(queryEl).insertAfter("#history-header")
+}
+
+function showQueries(queries){
+  queries.reverse()
+  if(queries.length > 0){
+    $("#queries-history").show();
+    $("body").css("padding-left", "300px")
+    for(query of queries){
+      var queryEl = $("<item>")
+      queryEl.text(query);
+      queryEl.addClass("query-item")
+      $("#queries-history").append(queryEl)
+      queryEl.on("click", reExecuteQuery)
+    }
+  }
+}
+
+function reExecuteQuery(){
+  $("#query").val($(this).text())
+  performQuery($(this).text())
+}
 
 
 function getHitNode(hit, index) {
@@ -29,8 +65,12 @@ function getHitNode(hit, index) {
 }
 function performQuery() {
   $(".loader").show()
-  queryText = document.getElementById("query").value
-  search({ "query": queryText }).then(loadResults)
+  firebase.auth().signInAnonymously().then((_)=>{
+    queryText = document.getElementById("query").value
+    search({ "query": queryText }).then(loadResults)
+    addQuery(queryText)
+  })
+  
 }
 
 function loadResults(res) {
