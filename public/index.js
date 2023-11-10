@@ -45,8 +45,17 @@ function loadResults(res) {
   PICS_PER_PARTY = pics_per_party
   createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
   loadDocs(hits)
-  createVennDiagram(partyOverlaps)
+  // createVennDiagram(partyOverlaps)
   createFacts(res.data)
+  createHeatMap(partyOverlaps)
+}
+
+function createHeatMap(heatMapData) {
+  Plotly.newPlot('heatmap', [heatMapData], {
+    autosize: false,
+    width: 400,
+    height:400,
+  });
 }
 
 function _create_fact_el() {
