@@ -1,0 +1,7 @@
+Paragraph json fields
+
+- text
+- keywords
+- embeddings for the keywords
+- summary (?)
+- topics (?)
