@@ -1,7 +1,7 @@
 from firebase_admin import credentials, firestore, initialize_app
 
 cred = credentials.Certificate(
-    "politics-navigator-firebase-adminsdk-sqgcn-02cac9b79c.json"
+    "/home/amg/Documents/politics-navigator-firebase-adminsdk-sqgcn-318ca699ce.json"
 )
 initialize_app(cred)
 

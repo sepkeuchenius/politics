@@ -13,18 +13,88 @@ class PartyConfig:
 
 CONFIGS = {
     "2021": {
-        "D66": {
-            "SKIP_PAGES": 4,
+        "50plus": {
+            "SKIP_PAGES": 1,
             "MARGIN_SIZE": 50,
             "PAR_MARGIN": 20,
         },
         "bbb": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "bij1": {
+            "SKIP_PAGES": 4,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "cda": {
+            "SKIP_PAGES": 3,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "cu": {
+            "SKIP_PAGES": 7,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "d66": {
+            "SKIP_PAGES": 4,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "denk": {
+            "SKIP_PAGES": 3,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "fvd": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "groenlinks": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "ja21": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "pvda": {
+            "SKIP_PAGES": 1,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "pvdd": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "pvv": {
+            "SKIP_PAGES": 3,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "sgp": {
+            "SKIP_PAGES": 2,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "sp": {
             "SKIP_PAGES": 6,
             "MARGIN_SIZE": 50,
             "PAR_MARGIN": 20,
         },
-        "VVD": {
-            "SKIP_PAGES": 1,
+        "volt": {
+            "SKIP_PAGES": 4,
+            "MARGIN_SIZE": 50,
+            "PAR_MARGIN": 20,
+        },
+        "vvd": {
+            "SKIP_PAGES": 3,
             "MARGIN_SIZE": 50,
             "PAR_MARGIN": 20,
         },
