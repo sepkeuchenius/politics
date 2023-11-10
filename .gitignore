@@ -1,8 +1,7 @@
-pre_processing/data/motions/*
-pre_processing/out/**
-programs/**
-pre_processing/data/**
 politics-navigator-firebase-adminsdk-sqgcn-02cac9b79c.json
 firebase-debug.log
 pre_processing/__pycache__/*.pyc
 pre_processing/__pycache__/utils.cpython-310.pyc
+.firebase
+.firebaserc
+functions/ui-debug.log
