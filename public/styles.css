@@ -388,3 +388,8 @@ u{
   left: 10px;
   top:12px;
 }
+#heatmap{
+  margin:20px calc(50% - 200px);
+  height:400px;
+  width: 400px;
+}
