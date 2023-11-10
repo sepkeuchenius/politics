@@ -13,14 +13,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   //login anonymousely
-  firebase.auth().signInAnonymously().then((res)=>{
-    loadUserQueries().then((res)=>{
+  firebase.auth().signInAnonymously().then((res) => {
+    loadUserQueries().then((res) => {
       showQueries(res.data)
     })
   })
 });
 
-function addQuery(query){
+function addQuery(query) {
   $("#queries-history").show();
   var queryEl = $("<item>")
   queryEl.text(query);
@@ -28,12 +28,12 @@ function addQuery(query){
   $(queryEl).insertAfter("#history-header")
 }
 
-function showQueries(queries){
+function showQueries(queries) {
   queries.reverse()
-  if(queries.length > 0){
+  if (queries.length > 0) {
     $("#queries-history").show();
     $("body").css("padding-left", "300px")
-    for(query of queries){
+    for (query of queries) {
       var queryEl = $("<item>")
       queryEl.text(query);
       queryEl.addClass("query-item")
@@ -43,7 +43,7 @@ function showQueries(queries){
   }
 }
 
-function reExecuteQuery(){
+function reExecuteQuery() {
   $("#query").val($(this).text())
   performQuery($(this).text())
 }
@@ -65,12 +65,12 @@ function getHitNode(hit, index) {
 }
 function performQuery() {
   $(".loader").show()
-  firebase.auth().signInAnonymously().then((_)=>{
+  firebase.auth().signInAnonymously().then((_) => {
     queryText = document.getElementById("query").value
     search({ "query": queryText }).then(loadResults)
     addQuery(queryText)
   })
-  
+
 }
 
 function loadResults(res) {
@@ -91,10 +91,14 @@ function loadResults(res) {
 }
 
 function createHeatMap(heatMapData) {
+  $("#heatmap-hint").show()
   Plotly.newPlot('heatmap', [heatMapData], {
     autosize: false,
     width: 400,
-    height:400,
+    height: 400, 
+    margin: {
+      l:0, r:0, t:0, b:0  
+    }
   });
 }
 
