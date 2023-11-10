@@ -23,6 +23,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-venn.min.js"></script>
 
   
   <!-- 
@@ -39,21 +41,35 @@
 <body>
   <div id="search-box" style="height: 50px;">
     <input type="text" id="query" placeholder="Wat vind je belangrijk?" />
-    <span class="material-symbols-outlined search">search
+    <span class="material-symbols-outlined search" onclick="performQuery()" style="cursor: pointer;">search
       </span>
     </div>
   <div id="results">
+  </div>
+  
+  <div class="loader"></div>
+
+  <div id="facts"></div>
+  <div id="venn-container">
+  <div id="least-agreed-venn" class="venn"></div>
+  <div id="most-agreed-venn" class="venn"></div>
   </div>
   <div class="chart-container">
     <canvas id="chart">
     </canvas>
   </div>
+
   <div id="docs"></div>
+
+
   <div id="doc">
     <span class="material-symbols-outlined close" onclick="hideDoc()">
       cancel
       </span>
     <h1 class="title"></h1>
+    <div id="tags">
+      <span id='date' class="tag"></span>
+    </div>
     <div class="members votes">
     </div>
     <p class="content"></p>
@@ -62,7 +78,9 @@
     <div class="votes-against votes"></div>
     <p class="metadata"></p>
   </div>
-
+  <footer>
+    Gemaakt door Sep Keuchenius and Andrzej Gajda. Disclaimer: nog niet alle data is up-to-date en gecontroleerd.
+  </footer>
   
 
   <script src="doc.js"></script>
