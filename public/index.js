@@ -92,12 +92,18 @@ function loadResults(res) {
 
 function createHeatMap(heatMapData) {
   $("#heatmap-hint").show()
+  var width = 400;
+  var height = 400
+  if($("body").width() < 600){
+    width = $("body").width();
+    height = width 
+  }
   Plotly.newPlot('heatmap', [heatMapData], {
     autosize: false,
-    width: 400,
-    height: 400, 
+    width: width,
+    height: height, 
     margin: {
-      l:0, r:0, t:0, b:0  
+      l:50, r:0, t:0, b:50  
     }
   });
 }
@@ -169,6 +175,7 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
 
     },
     options: {
+      maintainAspectRatio: false,
       plugins: {
         title: {
           display: true,

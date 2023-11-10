@@ -226,6 +226,15 @@ function openDoc() {
     var docElement = $(this)
     const doc = getDocById(docElement.attr("id"))
     $('#doc').show();
+    $('.title').empty()
+    date = $("#date").clone()
+    $("#tags").empty()
+    $("#tags").append(date)
+    $('.votes').empty()
+    $('.metadata').empty()
+    $(".text-piece").remove()
+    $(".source-text-piece").remove()
+    $("#doc.status-tag").remove()
     const dateEl = $("#date");    
     if(doc.data.Datum){
         dateEl.text(doc.getFormattedDate());

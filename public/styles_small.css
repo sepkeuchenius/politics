@@ -1,0 +1,40 @@
+@media only screen and (max-width: 600px) {
+  body {
+    padding:5px;
+    padding-left:0 !important
+  }
+  #queries-history {
+    display: none !important;
+    width:0;
+  }
+  #heatmap{
+    width:  100%;
+
+  }
+  #chart{
+    width:100%;
+  }
+  .chart-container{
+    width:100%;
+  }
+  .search {
+    right:20px;
+  }
+  .fact {
+    width:100%;
+  }
+  #facts {
+    width: 100%;;
+  }
+  .doc {
+    width:100%;
+  }
+  .chart-container{
+    height:400px;
+  }
+  #doc {
+    width:95%;
+    left:2.5%;
+    padding:25px;
+  }
+}

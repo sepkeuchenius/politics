@@ -67,20 +67,6 @@ body {
   font-size: 13px;
 }
 
-@media (max-width: 600px) {
-
-  body,
-  #message {
-    margin-top: 0;
-    background: var(--white);
-    box-shadow: none;
-  }
-
-  body {
-    border-top: 16px solid #ffa100;
-  }
-}
-
 #search-box {
   width: 100%;
   padding: 30px calc(50% - 350px);
