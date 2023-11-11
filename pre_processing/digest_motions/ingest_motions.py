@@ -11,8 +11,8 @@ current_doc = 0
 for filename in listdir("pre_processing/data/motions"):
     current_doc += 1
     with open(f"pre_processing/data/motions/{filename}") as file:
-        motion:dict = json.load(file)
-        doc = COLLECTION.document(motion.get('Id'))
+        motion: dict = json.load(file)
+        doc = COLLECTION.document(motion.get("Id"))
         print("added doc to batch")
         batch.set(doc, motion)
         if current_doc == DOC_LIMIT:
