@@ -432,16 +432,16 @@ u {
   height: 400px;
   width: 400px;
 }
+
 #heatmap-hint {
-  margin-top:50px;
+  margin-top: 50px;
 }
+
 #queries-history {
   position: fixed;
   height: 100%;
-  ;
-  width: 300px;
+  width: 200px;
   background-color: var(--third);
-  text-align: center;
   display: none;
   left: 0;
   overflow: auto;
@@ -449,7 +449,7 @@ u {
 
 .query-item {
   padding: 7px 20px;
-  font-size: 20px;
+  font-size: 15px;
   display: block;
   text-align: left;
   cursor: pointer;
@@ -457,4 +457,21 @@ u {
 
 .query-item:hover {
   background-color: var(--second);
+}
+
+#history-header {
+  padding: 0 20px;
+  font-size: 20px;
+  margin: 20px 0 10px;
+}
+.program-2023{
+  background-color: aliceblue;
+}
+.program-2021 {
+  border: 2px dashed var(--accent);
+  background-color: #e2e5e2;
+}
+
+.motion {
+  background-color: #faebd79c;
 }

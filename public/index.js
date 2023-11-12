@@ -80,11 +80,9 @@ function loadResults(res) {
   console.log(res.data)
   var hits = res.data.all_hits
   var pics_per_party = res.data.pics_per_party
-  var motion_party_occurance_tuples = res.data.motion_party_occurance_tuples
-  var program_party_occurance_tuples = res.data.program_party_occurance_tuples
   var partyOverlaps = res.data.party_overlaps
   PICS_PER_PARTY = pics_per_party
-  createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples)
+  createPartiesChart(res.data)
   loadDocs(hits)
   // createVennDiagram(partyOverlaps)
   createFacts(res.data)
@@ -149,7 +147,7 @@ function createVennDiagram(data) {
     $(".anychart-credits").remove()
   }
 }
-function createPartiesChart(motion_party_occurance_tuples, program_party_occurance_tuples) {
+function createPartiesChart(data) {
   $("#chart").empty()
   if (chart) {
     chart.destroy()
@@ -158,19 +156,26 @@ function createPartiesChart(motion_party_occurance_tuples, program_party_occuran
   chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: motion_party_occurance_tuples.map((party) => { return party[0] }),
+      labels: data.motion_party_occurance_tuples.map((party) => { return party[0] }),
       datasets: [{
         label: 'Moties',
-        data: motion_party_occurance_tuples.map((party) => { return party[1] }),
+        data: data.motion_party_occurance_tuples.map((party) => { return party[1] }),
         borderWidth: 1,
-        backgroundColor: '#C4E3CB',
+        backgroundColor: '#faebd79c',
         borderRadius: 20
       },
       {
-        label: 'Partijprogramma',
-        data: program_party_occurance_tuples.map((party) => { return party[1] }),
+        label: 'Partijprogramma 2023',
+        data: data.new_program_party_occurance_tuples.map((party) => { return party[1] }),
         borderWidth: 1,
-        backgroundColor: '#8AAE92',
+        backgroundColor: 'aliceblue',
+        borderRadius: 20
+      },
+      {
+        label: 'Partijprogramma 2021',
+        data: data.old_program_party_occurance_tuples.map((party) => { return party[1] }),
+        borderWidth: 1,
+        backgroundColor: '#e2e5e2',
         borderRadius: 20
       }],
 

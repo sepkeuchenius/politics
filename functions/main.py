@@ -4,7 +4,6 @@
 from firebase_functions import https_fn, params
 import logging
 from firebase_admin import initialize_app
-import json
 from firebase_admin import storage, db
 from algoliasearch.search_client import SearchClient
 
@@ -52,6 +51,14 @@ def save_user_query(query, uid):
     queries_ref.push(query)
 
 
+def _get_unique_items(list: list):
+    return [
+        item
+        for index, item in enumerate(list)
+        if item is not None and list.index(item) == index
+    ]
+
+
 @https_fn.on_call(secrets=[ALGOLIA_API_KEY])
 def search(req: https_fn.CallableRequest) -> https_fn.Response:
     # Create a new index and add a record
@@ -69,42 +76,47 @@ def search(req: https_fn.CallableRequest) -> https_fn.Response:
         for party in hit["votes_for"] + hit["votes_against"]
     ]
     parties_with_programs = [hit["party"] for hit in hits if "party" in hit]
+    parties_with_new_programs = [hit["party"] for hit in hits if "party" in hit and "year" in hit and hit["year"] == "2023"]
+    parties_with_old_programs = [hit["party"] for hit in hits if "party" in hit and "year" in hit and hit["year"] == "2021"]
     all_motion_parties = parties_that_filed_motions + parties_that_voted_in_motions
     all_active_parties = parties_that_filed_motions + parties_with_programs
-    all_unique_active_parties = [
-        party
-        for index, party in enumerate(all_active_parties)
-        if party is not None and all_active_parties.index(party) == index
-    ]
-    all_unique_motion_parties = [
-        party
-        for index, party in enumerate(all_motion_parties)
-        if party is not None and all_motion_parties.index(party) == index
-    ]
+    all_relevant_parties = _get_unique_items(all_motion_parties + parties_with_programs)
+    all_unique_active_parties = _get_unique_items(all_active_parties)
+    all_unique_motion_parties = _get_unique_items(all_motion_parties)
 
     # do some counts
+    total_activity_party_occurances = sorted(
+        [
+            (party, (parties_that_filed_motions + parties_with_programs).count(party))
+            for party in all_unique_active_parties
+        ],
+        key=lambda x: x[1],
+        reverse=True,
+    )
     motion_party_occurances = [
         (party, parties_that_filed_motions.count(party))
-        for party in all_unique_active_parties
+        for party, _ in total_activity_party_occurances
     ]
-    program_party_occurances = [
-        (party, parties_with_programs.count(party))
-        for party in all_unique_active_parties
+    new_program_party_occurance_tuples = [
+        (party, parties_with_new_programs.count(party))
+        for party, _ in total_activity_party_occurances
     ]
 
-    total_activity_party_occurances = [
-        (party, motion_party_occurances[index][1] + program_party_occurances[index][1])
-        for index, party in enumerate(all_unique_active_parties)
+    old_program_party_occurance_tuples = [
+        (party, parties_with_old_programs.count(party))
+        for party, _ in total_activity_party_occurances
     ]
+
     return {
         "all_hits": hits,
         "n_hits": len(hits),
-        "pics_per_party": _get_party_pics(all_unique_active_parties),
-        "all_party_occurance_tuples": sorted(total_activity_party_occurances, key=lambda x: x[1], reverse=True), #tuple matching fails
-        "motion_party_occurance_tuples": sorted(motion_party_occurances, key=lambda x: x[1], reverse=True),
-        "program_party_occurance_tuples": sorted(program_party_occurances, key=lambda x: x[1], reverse=True),
+        "pics_per_party": _get_party_pics(all_relevant_parties),
+        "all_party_occurance_tuples": total_activity_party_occurances,  # tuple matching fails
+        "motion_party_occurance_tuples": motion_party_occurances,
+        "new_program_party_occurance_tuples": new_program_party_occurance_tuples,
+        "old_program_party_occurance_tuples" : old_program_party_occurance_tuples,
         "party_overlaps": _get_overlapping_parties(
-            motions, [party_count[0] for party_count in program_party_occurances[:8]]
+            motions, [party_count[0] for party_count in new_program_party_occurance_tuples[:8]]
         ),
         "biggest_blocking_party": _get_biggest_blocker(
             motions, all_unique_motion_parties
