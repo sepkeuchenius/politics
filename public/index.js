@@ -4,7 +4,7 @@ SQUARE_HEIGHT = 100;
 var PICS_PER_PARTY = {}
 document.addEventListener('DOMContentLoaded', function () {
   search = firebase.functions().httpsCallable('search');
-  loadUserQueries = firebase.functions().httpsCallable('loadUserQueries');
+  loadUserQueries = firebase.functions().httpsCallable('load_user_queries');
   $("#query").focus()
   const searchParams = new URLSearchParams(window.location.search);
   if (searchParams.has('q')) {
@@ -29,6 +29,7 @@ function addQuery(query) {
 }
 
 function showQueries(queries) {
+  console.log(queries)
   queries.reverse()
   if (queries.length > 0) {
     $("#queries-history").show();
