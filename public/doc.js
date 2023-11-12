@@ -23,7 +23,7 @@ class Doc {
         }
     }
     findHiglight(){
-        if(this.data._highlightResult && this.data._highlightResult.summary && this.data._highlightResult.summary.matchLevel != "none" && this.docType == "motion"){
+        if(this.data.summary && this.docType == "motion"){
             var summaryHighlight = this.data.summary.substring(0,400)
             if(this.getSubject()){
                 return `<b>${this.getSubject()}</b><br><br>${summaryHighlight}`

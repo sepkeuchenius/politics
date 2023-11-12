@@ -26,6 +26,7 @@ function addQuery(query) {
   queryEl.text(query);
   queryEl.addClass("query-item")
   $(queryEl).insertAfter("#history-header")
+  queryEl.on("click", reExecuteQuery)
 }
 
 function showQueries(queries) {
@@ -107,30 +108,36 @@ function createHeatMap(heatMapData) {
   });
 }
 
-function _create_fact_el() {
+function _create_fact_el(color) {
   var el = $("<p>")
   var icon = $("<span>")
   icon.addClass("material-symbols-outlined info")
   icon.text("info")
   el.append(icon)
   el.addClass("fact")
+  el.css("background", color)
   $("#facts").append(el)
   return el
 }
 
 function createFacts(all_data) {
   $("#facts").empty()
+  var blueness = 146
   if (all_data.most_active_party[1] > 0) {
-    _create_fact_el().append(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
+    _create_fact_el("rgb(158 191 217)").append(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
+    blueness -= 20
   }
   if (all_data.most_cooperating_parties[2] > 0) {
-    _create_fact_el().append(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
+    _create_fact_el("rgb(235 190 122)").append(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
+    blueness -= 20
   }
   if (all_data.biggest_fan_party[1] > 0) {
-    _create_fact_el().append(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
+    _create_fact_el("rgb(138 174 146)").append(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
+    blueness -= 20
   }
   if (all_data.biggest_blocking_party[1] >= 0) {
-    _create_fact_el().append(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
+    _create_fact_el("rgb(241 151 122)").append(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
+    blueness -= 20
   }
 }
 
@@ -205,7 +212,7 @@ function createPartiesChart(data) {
         const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
         if (elements[0]) {
           const i = elements[0].index;
-          const party = motion_party_occurance_tuples[i];
+          const party = data.old_program_party_occurance_tuples[i];
           loadPartyDocs(party[0])
         }
       }
