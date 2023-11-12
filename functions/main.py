@@ -6,19 +6,44 @@ import logging
 from firebase_admin import initialize_app
 from firebase_admin import storage, db
 from algoliasearch.search_client import SearchClient
+import math
 
-initialize_app()
+app = initialize_app()
 
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/sep/Desktop/sep/python-politics/politics-navigator-firebase-adminsdk-sqgcn-02cac9b79c.json"
 ALGOLIA_API_KEY = params.SecretParam("ALGOLIA_API_KEY")
 client = SearchClient.create("PD7R6XVZ97", f"{ALGOLIA_API_KEY.value}")
 index = client.init_index("parties")
-bucket = storage.bucket()
+
+PARTY_ORDER = [
+    "PVDD",
+    "BIJ1" "GL",
+    "GROENLINKS",
+    "SP",
+    "SPLINTER",
+    "GL-PVDA",
+    "PVDA",
+    "CU",
+    "CHRISTENUNIE",
+    "DENK",
+    "D66",
+    "VOLT",
+    "NSC",
+    "CDA",
+    "VVD",
+    "BBB",
+    "SGP",
+    "JA21",
+    "PVV",
+    "FVD",
+    "BVNL",
+]
 
 PARTY_MAPPER = {
     "OMTZIGT": "NSC",
     # "PVDA": "GL-PVDA",
     # "GROENLINKS": "GL-PVDA",
-    "GL": "GL-PvdA",
+    # "GL": "GL-PvdA",
     "BBB": "BBB",
     "VVD": "VVD",
     "PVDD": "PvdD",
@@ -76,8 +101,16 @@ def search(req: https_fn.CallableRequest) -> https_fn.Response:
         for party in hit["votes_for"] + hit["votes_against"]
     ]
     parties_with_programs = [hit["party"] for hit in hits if "party" in hit]
-    parties_with_new_programs = [hit["party"] for hit in hits if "party" in hit and "year" in hit and hit["year"] == "2023"]
-    parties_with_old_programs = [hit["party"] for hit in hits if "party" in hit and "year" in hit and hit["year"] == "2021"]
+    parties_with_new_programs = [
+        hit["party"]
+        for hit in hits
+        if "party" in hit and "year" in hit and hit["year"] == "2023"
+    ]
+    parties_with_old_programs = [
+        hit["party"]
+        for hit in hits
+        if "party" in hit and "year" in hit and hit["year"] == "2021"
+    ]
     all_motion_parties = parties_that_filed_motions + parties_that_voted_in_motions
     all_active_parties = parties_that_filed_motions + parties_with_programs
     all_relevant_parties = _get_unique_items(all_motion_parties + parties_with_programs)
@@ -114,9 +147,10 @@ def search(req: https_fn.CallableRequest) -> https_fn.Response:
         "all_party_occurance_tuples": total_activity_party_occurances,  # tuple matching fails
         "motion_party_occurance_tuples": motion_party_occurances,
         "new_program_party_occurance_tuples": new_program_party_occurance_tuples,
-        "old_program_party_occurance_tuples" : old_program_party_occurance_tuples,
+        "old_program_party_occurance_tuples": old_program_party_occurance_tuples,
         "party_overlaps": _get_overlapping_parties(
-            motions, [party_count[0] for party_count in new_program_party_occurance_tuples[:8]]
+            motions,
+            [party_count[0] for party_count in new_program_party_occurance_tuples[:8]],
         ),
         "biggest_blocking_party": _get_biggest_blocker(
             motions, all_unique_motion_parties
@@ -149,17 +183,22 @@ def _post_process_hits(hits):
         if "party" in hit:
             hit["party"] = _map_party(hit["party"])
         if "parties" in hit:
-            hit["parties"] = [_map_party(party) for party in hit["parties"]]
+            hit["parties"] = _get_unique_items(
+                [_map_party(party) for party in hit["parties"]]
+            )
         if "votes_for" in hit:
             for vote in hit["votes_for"]:
                 vote["ActorFractie"] = _map_party(vote["ActorFractie"])
+            hit["votes_for"] = _get_unique_items(hit["votes_for"])
         if "votes_against" in hit:
             for vote in hit["votes_against"]:
                 vote["ActorFractie"] = _map_party(vote["ActorFractie"])
+            hit["votes_againts"] = _get_unique_items(hit["votes_against"])
     return hits
 
 
 def _get_party_pics(parties):
+    bucket = storage.bucket()
     pics_per_party = {}
     pics = list(bucket.list_blobs())
     for party in parties:
@@ -173,7 +212,15 @@ def _get_party_pics(parties):
 def _get_overlapping_parties(motions, parties):
     # Calculate the overlap between parties
     max_distance = len(motions) * 2
-    overlaps_matrix = _fill_matrix(parties, max_distance)
+    parties = sorted(
+        parties, key=lambda x: PARTY_ORDER.index(x) if x in PARTY_ORDER else 0
+    )
+    logger.warn(parties)
+    logger.warn([party in PARTY_ORDER for party in parties])
+    overlaps_matrix = _fill_matrix(
+        parties,
+        max_distance,
+    )
 
     for motion in motions:
         for party_index, party in enumerate(parties):
@@ -185,6 +232,13 @@ def _get_overlapping_parties(motions, parties):
 
     # All overlaps are now between 0 and max_distance
     # The higher the number, the better the match
+
+    # create percentages
+    for index, _ in enumerate(overlaps_matrix):
+        for other_index, _ in enumerate(overlaps_matrix[index]):
+            overlaps_matrix[index][other_index] = math.ceil(
+                (overlaps_matrix[index][other_index] / max_distance) * 100
+            )
 
     # Find the best and worst matches
     return {
