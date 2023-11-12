@@ -23,7 +23,7 @@ class Doc {
         }
     }
     findHiglight(){
-        if(this.data._highlightResult && this.data._highlightResult.summary && this.data._highlightResult.summary.matchLevel != "none" && this.docType == "motion"){
+        if(this.data.summary && this.docType == "motion"){
             var summaryHighlight = this.data.summary.substring(0,400)
             if(this.getSubject()){
                 return `<b>${this.getSubject()}</b><br><br>${summaryHighlight}`
@@ -201,6 +201,14 @@ class Program extends Doc {
         var program = $("<div>")
         program.addClass("program-tag")
         program.text("PROGRAMMA")
+        if (this.data.year == "2021"){
+            program.text("PROGRAMMA (2021)")
+            shape.addClass("program-2021")
+        }
+        else {
+            program.text("PROGRAMMA (2023)")
+            shape.addClass("program-2023")
+        }
         shape.append(program)
         var motion_parties = $("<div>")
         motion_parties.addClass("motion-parties")
