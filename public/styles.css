@@ -106,7 +106,7 @@ body {
   width: 100%;
   left: 0vw;
   height: calc(100% - 56px);
-  padding: 20px calc(50% - 400px);
+  padding: 40px calc(50% - 400px) 20px;
   box-sizing: border-box;
   text-align: center;
 }
