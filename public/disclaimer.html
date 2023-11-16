@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Politics Navigator</title>
+  <!-- <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script> -->
+  <!-- update the version number as needed -->
+  <script defer src="/__/firebase/9.20.0/firebase-app-compat.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <script defer src="/__/firebase/9.20.0/firebase-auth-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-database-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-firestore-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-functions-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-messaging-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-storage-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-analytics-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-remote-config-compat.js"></script>
+  <script defer src="/__/firebase/9.20.0/firebase-performance-compat.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+  <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles_small.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+</head>
+
+<body style="padding:30px calc(50% - 350px);">
+  <p>
+    This tool was created by Andrzej Gajda and Sep Keuchenius in 2023.
+  </p>
+  <br><br>
+  <h2>
+    Why motions?
+  </h2>
+  <p>
+    Party programs often contain claims that are far-fetched and will be hard to realize. Partly because these parties
+    are never going to rule, and partly because they need to compromise. One way to find out what actions a party has
+    taken is to look at the motions they filed and voted for. These motions contain a request to the ruling government,
+    asking them to act in one way or another.
+    Therefore, we make the claim that to make the right decision you need to look at the actions that a party has taken
+    during the last governing phase. That means looking at the motions they filed, voted for, voted against, and
+    comparing those to what they promised, and what they are promising for the upcoming elections.
+    Apart from visualizing the difference between promises and their later realization, we wanted to be able to search
+    for topics that we were interested in, not what people are "commonly" interested in. Stemwijzer, a famous tool to
+    help you find the party that most fits your needs, pics 30 questions on topics they deem interesting, disregarding
+    what you yourself might find more interesting. Our tool allows you to search for what you find interesting. After
+    all, it's a representative democracy, so the people we elect should represent our beliefs and ideologies.
+  </p>
+  <br><br>
+  <h2>
+    Data
+  </h2>
+  <p>
+    All the data comes from the publicly available party programmes of 2021 and 2023, and the motions available via the
+    <a href="https://opendata.tweedekamer.nl/documentatie/odata-api">OData API</a> of the Tweede Kamer der staten
+    generaal.
+  </p>
+  <br><br>
+  <h2>
+    Parties
+  </h2>
+  <p>
+    The votings of some people in the past have been classified as the parties that they are now part of, such as:<br>
+    P. Omtzigt: NSC.<br>
+    W. Van Haga: BVNL.<br>
+    And others.<br>
+    <br><br>
+    Not all parties that can be voted for are on this website, such as "Piratenpartij" and "Partij van de Sport", simply
+    due to a lack of time and an estimation as to how likely it is that they will end up in the chamber.
+  </p><br><br>
+  <h2>
+    Your query data
+  </h2>
+  <p>
+    Whatever you type into the search-bar will be anonymousely stored in our database in Google Cloud, to make the
+    history bar represent your queries so you can easily find earlier results back.
+  </p>
+  <script src="doc.js"></script>
+  <script src="index.js"></script>
+</body>
+
+</html>

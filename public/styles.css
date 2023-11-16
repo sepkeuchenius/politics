@@ -69,7 +69,7 @@ body {
 
 #search-box {
   width: 100%;
-  padding: 30px calc(50% - 350px);
+  padding: 30px calc(50% - 350px) 0;
   position: relative;
   box-sizing: border-box;
 }
@@ -106,7 +106,7 @@ body {
   width: 100%;
   left: 0vw;
   height: calc(100% - 56px);
-  padding: 50px calc(50% - 400px);
+  padding: 20px calc(50% - 400px);
   box-sizing: border-box;
   text-align: center;
 }
@@ -434,7 +434,7 @@ u {
 }
 
 #heatmap-hint {
-  margin-top: 50px;
+  margin-top: 20px;
 }
 
 #queries-history {
