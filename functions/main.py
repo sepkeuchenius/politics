@@ -159,7 +159,7 @@ def search(req: https_fn.CallableRequest) -> https_fn.Response:
         "most_active_party": _get_most_active_party(motions, all_unique_motion_parties),
         "most_cooperating_parties": _get_cooperating_parties_in_motions(
             motions, all_unique_motion_parties
-        )[0],
+        ),
     }
 
 
@@ -236,9 +236,12 @@ def _get_overlapping_parties(motions, parties):
     # create percentages
     for index, _ in enumerate(overlaps_matrix):
         for other_index, _ in enumerate(overlaps_matrix[index]):
-            overlaps_matrix[index][other_index] = math.ceil(
-                (overlaps_matrix[index][other_index] / max_distance) * 100
-            )
+            if max_distance > 0:
+                overlaps_matrix[index][other_index] = math.ceil(
+                    (overlaps_matrix[index][other_index] / max_distance) * 100
+                )
+            else:
+                overlaps_matrix[index][other_index] = 0
 
     # Find the best and worst matches
     return {
@@ -290,7 +293,8 @@ def _get_cooperating_parties_in_motions(motions, parties):
         for second_key in counter[first_key]
     ]
     tuple_list.sort(key=lambda x: x[2], reverse=True)
-    return tuple_list
+    if len(tuple_list) > 0:
+        return tuple_list[0]
 
 
 def _count_parties_actions_in_motions(motions, parties, get_action_function):
@@ -322,17 +326,27 @@ def _get_motion_parties(motion):
 
 
 def _get_most_active_party(motions, parties):
-    return _count_parties_actions_in_motions(motions, parties, _get_motion_parties)[0]
+    most_active = _count_parties_actions_in_motions(
+        motions, parties, _get_motion_parties
+    )
+    if len(most_active) > 0:
+        return most_active[0]
 
 
 def _get_biggest_blocker(motions, parties):
-    return _count_parties_actions_in_motions(
+    biggest_blocker = _count_parties_actions_in_motions(
         motions, parties, _get_motion_votes_against
-    )[0]
+    )
+    if len(biggest_blocker) > 0:
+        return biggest_blocker[0]
 
 
 def _get_biggest_fan(motions, parties):
-    return _count_parties_actions_in_motions(motions, parties, _get_motion_votes_for)[0]
+    biggest_fan = _count_parties_actions_in_motions(
+        motions, parties, _get_motion_votes_for
+    )
+    if len(biggest_fan) > 0:
+        return biggest_fan[0]
 
 
 def _is_motion(hit):
