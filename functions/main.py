@@ -41,9 +41,9 @@ PARTY_ORDER = [
 
 PARTY_MAPPER = {
     "OMTZIGT": "NSC",
-    # "PVDA": "GL-PVDA",
-    # "GROENLINKS": "GL-PVDA",
-    # "GL": "GL-PvdA",
+    "PVDA": "GL-PVDA",
+    "GROENLINKS": "GL-PVDA",
+    "GL": "GL-PVDA",
     "BBB": "BBB",
     "VVD": "VVD",
     "PVDD": "PvdD",
