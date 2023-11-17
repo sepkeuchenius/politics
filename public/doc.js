@@ -85,7 +85,17 @@ class Doc {
         shape.append(shapeText)
 
         shape.on("click", openDoc)
-        $("#docs").append(shape)
+        if(this.type == "motion"){
+            $("#motions").append(shape)
+        }
+        else if(this.type == "program"){
+            if(this.data.year == "2021"){
+                $("#programs-2021").append(shape)
+            }
+            else {
+                $("#programs-2023").append(shape)
+            }
+        }
         this.shape = shape
         return shape;
     }

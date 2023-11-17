@@ -266,7 +266,7 @@ function loadDocs(docs) {
   $("#results").text(
     `${docs.length} resultaten in moties en partijprogramma's.`
   )
-  $("#docs").empty()
+  $("#docs .column").empty()
   DOCS = []
   for (doc of docs) {
     if (!(doc.type)) { continue }
