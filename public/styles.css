@@ -479,3 +479,9 @@ u {
 .plan {
   background-color: #ffcdcd;
 }
+
+.column {
+  width: 33%;
+  display: inline-block;
+  vertical-align: top;
+}
