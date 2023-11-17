@@ -269,16 +269,21 @@ function loadDocs(docs) {
   $("#docs").empty()
   DOCS = []
   for (doc of docs) {
-    if (!(doc.status || doc.party)) { continue }
-    if (doc.party) {
+    if (!(doc.type)) { continue }
+    if (doc.type == "program") {
       program = new Program(doc);
       program.draw();
       DOCS.push(program)
     }
-    else {
+    else if(doc.type == "motion") {
       motion = new Motion(doc);
       motion.draw();
       DOCS.push(motion)
+    }
+    else if (doc.type == "plan"){
+      plan = new Plan(doc);
+      plan.draw()
+      DOCS.push(plan)
     }
   }
 }

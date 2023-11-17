@@ -217,6 +217,46 @@ class Program extends Doc {
         party_img.css("background", `url('${PICS_PER_PARTY[doc.party]}') center/80% no-repeat var(--white)`)
         motion_parties.append(party_img)
         shape.append(motion_parties)
+        return shape
+    }
+}
+
+
+class Plan extends Doc {
+    constructor(hitObject){
+        super(hitObject)
+    }
+    draw(){
+        var shape = super.draw()
+        var program = $("<div>")
+        program.addClass("program-tag")
+        if (this.data.year == "2021"){
+            program.text("REGEERAKKOORD (2021)")
+            shape.addClass("plan-2021")
+        }
+        else {
+            program.text("REGEERAKKOORD (2023)")
+            shape.addClass("plan-2023")
+        }
+        shape.append(program)
+        var motion_parties = $("<div>")
+        motion_parties.addClass("motion-parties")
+        for (var party of doc.parties) {
+            if (PICS_PER_PARTY[party]) {
+                var party_img = $("<img>")
+                party_img.addClass("motion-party")
+                party_img.css("background", `url('${PICS_PER_PARTY[party]}') center/80% no-repeat var(--white)`)
+                party_img.css("left", `${left}px`)
+                party_img.css("top", `${top}px`)
+                motion_parties.append(party_img)
+                var newPosition = calcPartyImagePosition(left, top, 300)
+                left = newPosition[0]; top = newPosition[1];
+            }
+            else {
+                console.log(party)
+            }
+        }
+        shape.append(motion_parties)
     }
 }
 
