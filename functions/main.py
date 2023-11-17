@@ -350,4 +350,4 @@ def _get_biggest_fan(motions, parties):
 
 
 def _is_motion(hit):
-    return "parties" in hit
+    return "type" in hit and hit["type"] == "motion"

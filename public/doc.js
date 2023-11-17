@@ -3,12 +3,6 @@ class Doc {
     constructor(hitObject) {
         this.data = hitObject;
         this.id = hitObject.objectID;
-        if (this.data.party) {
-            this.docType = "program";
-        }
-        else {
-            this.docType = "motion";
-        }
         this.text = this.findHiglight()
         this.fullText = this.findFullText()
     }
@@ -23,7 +17,7 @@ class Doc {
         }
     }
     findHiglight(){
-        if(this.data.summary && this.docType == "motion"){
+        if(this.data.summary && this.type == "motion"){
             var summaryHighlight = this.data.summary.substring(0,400)
             if(this.getSubject()){
                 return `<b>${this.getSubject()}</b><br><br>${summaryHighlight}`
@@ -106,6 +100,7 @@ class Doc {
 class Motion extends Doc {
     constructor(hitObject) {
         super(hitObject);
+        this.type = "motion";
     }
     draw() {
         var shape = super.draw()
@@ -195,6 +190,7 @@ function calcPartyImagePosition(left, top, outerRight = 200){
 class Program extends Doc {
     constructor(hitObject) {
         super(hitObject)
+        this.type = "program"
     }
     draw() {
         var shape = super.draw()
@@ -225,9 +221,11 @@ class Program extends Doc {
 class Plan extends Doc {
     constructor(hitObject){
         super(hitObject)
+        this.type = "plan"
     }
     draw(){
         var shape = super.draw()
+        shape.addClass("plan")
         var program = $("<div>")
         program.addClass("program-tag")
         if (this.data.year == "2021"){
@@ -241,6 +239,8 @@ class Plan extends Doc {
         shape.append(program)
         var motion_parties = $("<div>")
         motion_parties.addClass("motion-parties")
+        var left = 0;
+        var top = 0;
         for (var party of doc.parties) {
             if (PICS_PER_PARTY[party]) {
                 var party_img = $("<img>")
@@ -291,7 +291,7 @@ function openDoc() {
     else {
         dateEl.hide()
     }
-    if(doc.data.summary && doc.docType == "motion"){
+    if(doc.data.summary && doc.type == "motion"){
         var textPiece = $("<p>");
         textPiece.html(doc.data.summary);
         textPiece.addClass("text-piece");
@@ -317,7 +317,7 @@ function openDoc() {
         $("#doc .content").append(textPiece)
     }
     $("#doc .members").append(docElement.find(".motion-parties").clone().show())
-    if (doc.docType == "motion") {
+    if (doc.type == "motion") {
        
         for(var member of doc.getMembers()){
             memberSpan = $("<span>")
@@ -374,8 +374,14 @@ function openDoc() {
             $("#doc .members").css("height", getHeight($("#doc .members")))
         },100) 
     }
-    else {
+    else if(doc.type == "program") {
         $("#doc .title").text("Programma")
+        $("#doc .votes-for, .votes-against").remove()
+    }
+    else {
+        console.log("yea")
+        console.log(doc.type)
+        $("#doc .title").text("Regeerakkoord")
         $("#doc .votes-for, .votes-against").remove()
     }
 }
