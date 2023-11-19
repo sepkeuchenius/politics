@@ -45,27 +45,34 @@
     <h1 id="history-header">Geschiedenis</h1>
 
   </div>
+  <h1 style="text-align: center; margin-bottom:0px; text-decoration: underline var(--third) 4px;">Politics Navigator</h1>
   <div id="search-box" style="height: 50px;">
-    <input type="text" id="query" placeholder="Wat vind je belangrijk?" />
-    <span class="material-symbols-outlined search" onclick="performQuery()" style="cursor: pointer;">search
+    <input type="text" id="query" placeholder="Wat vind jij belangrijk?" />
+    <span class="material-symbols-outlined search" onclick="browserSearch()" style="cursor: pointer;">search
       </span>
     </div>
-  <div id="results">
-  </div>
+
   
   <div class="loader"></div>
-
+  <div id="facts-hint" style="display: none;">
+    Snelle feiten op een rij
+  </div>
   <div id="facts"></div>
   <p style="text-align: center; display: none;" id="heatmap-hint">
     Overeenkomsten in stemgedrag
   </p>
   <div id="heatmap"></div>
+  <p style="display: none;" id="chart-hint">
+  Activiteit van partijen
+  </p>
   <div class="chart-container">
     <canvas id="chart">
     </canvas>
   </div>
-
-  <div id="docs"></div>
+  <div id="results">
+  </div>
+  <div id="docs">
+  </div>
 
 
   <div id="doc">

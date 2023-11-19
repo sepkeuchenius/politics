@@ -10,7 +10,6 @@
 }
 
 body {
-  background: var(--white);
   color: rgba(0, 0, 0, 0.87);
   /* font-family: Roboto, Helvetica, Arial, sans-serif; */
   margin: 0;
@@ -90,7 +89,8 @@ body {
   padding: 0 17px;
   font-size: 16px;
   box-sizing: border-box;
-  background: var(--second);
+  background-color: transparent;
+  border: 3px solid var(--third);
 }
 
 #header {
@@ -141,7 +141,7 @@ body {
 }
 
 .doc {
-  width: calc(50% - 10px);
+  width: 100%;
   min-height: 200px;
   border-radius: 20px;
   display: inline-block;
@@ -380,6 +380,7 @@ em {
   animation: spin 2s linear infinite;
   display: none;
   margin: 0 auto;
+  margin-top:30px;
 }
 
 @keyframes spin {
@@ -395,9 +396,9 @@ em {
 .fact {
   text-align: center;
   padding: 5px 20px;
-  background: var(--third);
+  border: 2px solid var(--third);
   margin: 5px 2px;
-  color: var(--white);
+  color: var(--accent);
   width: calc(50% - 4px);
   box-sizing: border-box;
   display: inline-block;
@@ -412,7 +413,15 @@ em {
   width: 700px;
   margin: 0 auto;
 }
-
+#facts-hint{
+  margin:0 auto;
+  margin-top:50px;
+  text-align: center;
+}
+#chart-hint {
+  text-align: center;
+  margin-top:30px;
+}
 u {
   text-decoration-color: var(--accent);
   text-decoration-style: dashed;
@@ -431,6 +440,7 @@ u {
   margin: 20px calc(50% - 200px);
   height: 400px;
   width: 400px;
+  display:none;
 }
 
 #heatmap-hint {
@@ -441,9 +451,10 @@ u {
   position: fixed;
   height: 100%;
   width: 200px;
-  background-color: var(--third);
   display: none;
   left: 0;
+  top:0;
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.2);
   overflow: auto;
 }
 
@@ -469,11 +480,11 @@ u {
 }
 .program-2021 {
   border: 2px dashed var(--accent);
-  background-color: #e2e5e2;
+  background-color: #f1f3f5;
 }
 
 .motion {
-  background-color: #faebd79c;
+  background-color: #d7e5fa;
 }
 
 .plan {
