@@ -141,7 +141,7 @@ body {
 }
 
 .doc {
-  width: 100%;
+  width: calc(50% - 10px);
   min-height: 200px;
   border-radius: 20px;
   display: inline-block;
