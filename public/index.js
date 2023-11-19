@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const searchParams = new URLSearchParams(window.location.search);
   if (searchParams.has('q')) {
     $('#query').val(searchParams.get("q"))
-    performQuery()
+    browserSearch();
   }
 
   //login anonymousely
@@ -47,7 +47,7 @@ function showQueries(queries) {
 
 function reExecuteQuery() {
   $("#query").val($(this).text())
-  performQuery($(this).text())
+  browserSearch()
 }
 
 
@@ -91,19 +91,19 @@ function loadResults(res) {
 }
 
 function createHeatMap(heatMapData) {
-  $("#heatmap-hint").show()
+  // $("#heatmap-hint").show()
   var width = 400;
   var height = 400
-  if($("body").width() < 600){
+  if ($("body").width() < 600) {
     width = $("body").width();
-    height = width 
+    height = width
   }
   Plotly.newPlot('heatmap', [heatMapData], {
     autosize: false,
     width: width,
-    height: height, 
+    height: height,
     margin: {
-      l:50, r:0, t:0, b:50  
+      l: 50, r: 0, t: 0, b: 50
     }
   });
 }
@@ -115,29 +115,23 @@ function _create_fact_el(color) {
   icon.text("info")
   el.append(icon)
   el.addClass("fact")
-  el.css("background", color)
   $("#facts").append(el)
   return el
 }
 
 function createFacts(all_data) {
   $("#facts").empty()
-  var blueness = 146
   if (all_data.most_active_party[1] > 0) {
-    _create_fact_el("rgb(158 191 217)").append(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
-    blueness -= 20
+    _create_fact_el().append(`${all_data.most_active_party[0]} heeft de meeste moties <u>ingediend</u> (${all_data.most_active_party[1]})`)
   }
   if (all_data.most_cooperating_parties[2] > 0) {
-    _create_fact_el("rgb(235 190 122)").append(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
-    blueness -= 20
+    _create_fact_el().append(`${all_data.most_cooperating_parties[0]} en ${all_data.most_cooperating_parties[1]} hebben het meest <u>samengewerkt</u> (${all_data.most_cooperating_parties[2]})`)
   }
   if (all_data.biggest_fan_party[1] > 0) {
-    _create_fact_el("rgb(138 174 146)").append(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
-    blueness -= 20
+    _create_fact_el().append(`${all_data.biggest_fan_party[0]} heeft het meest <u>voor</u> gestemd (${all_data.biggest_fan_party[1]})`)
   }
   if (all_data.biggest_blocking_party[1] >= 0) {
-    _create_fact_el("rgb(241 151 122)").append(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
-    blueness -= 20
+    _create_fact_el().append(`${all_data.biggest_blocking_party[0]} heeft het meest <u>tegen</u> gestemd (${all_data.biggest_blocking_party[1]})`)
   }
 }
 
@@ -168,7 +162,7 @@ function createPartiesChart(data) {
         label: 'Moties',
         data: data.motion_party_occurance_tuples.map((party) => { return party[1] }),
         borderWidth: 1,
-        backgroundColor: '#faebd79c',
+        backgroundColor: '#d7e5fa',
         borderRadius: 20
       },
       {
@@ -182,7 +176,7 @@ function createPartiesChart(data) {
         label: 'Partijprogramma 2021',
         data: data.old_program_party_occurance_tuples.map((party) => { return party[1] }),
         borderWidth: 1,
-        backgroundColor: '#e2e5e2',
+        backgroundColor: '#f1f3f5',
         borderRadius: 20
       }],
 
@@ -263,6 +257,8 @@ function createPartiesSquare(party_occurance_tuples, totalHits) {
 }
 
 function loadDocs(docs) {
+  $("#facts-hint").show()
+  $("#chart-hint").show()
   $("#results").text(
     `${docs.length} resultaten in moties en partijprogramma's.`
   )
@@ -275,12 +271,12 @@ function loadDocs(docs) {
       program.draw();
       DOCS.push(program)
     }
-    else if(doc.type == "motion") {
+    else if (doc.type == "motion") {
       motion = new Motion(doc);
       motion.draw();
       DOCS.push(motion)
     }
-    else if (doc.type == "plan"){
+    else if (doc.type == "plan") {
       plan = new Plan(doc);
       plan.draw()
       DOCS.push(plan)
@@ -298,13 +294,21 @@ function hideDoc() {
 }
 
 
+function browserSearch() {
+  var params = new URLSearchParams(window.location.search);
+  params.set("q", $("#query").val());
+  var newUrl = window.location.origin
+    + window.location.pathname
+    + '?' + params.toString();
+  window.history.pushState({ path: newUrl }, '', newUrl);
+  performQuery()
+}
+
 $("#query").on("keypress", function (event) {
   // If the user presses the "Enter" key on the keyboard
   if (event.key === "Enter") {
-    // Cancel the default action, if needed
     event.preventDefault();
-    // Trigger the button element with a click
-    performQuery()
+    browserSearch()
   }
 });
 
