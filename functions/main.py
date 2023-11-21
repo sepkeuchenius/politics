@@ -76,12 +76,20 @@ def save_user_query(query, uid):
     queries_ref.push(query)
 
 
-def _get_unique_items(list: list):
-    return [
-        item
-        for index, item in enumerate(list)
-        if item is not None and list.index(item) == index
-    ]
+def _get_unique_items(list: list, key=None):
+    if key is not None:
+        altered_list = [item[key] for item in list]
+        return [
+            item
+            for index, item in enumerate(list)
+            if altered_list.index(item[key]) == index
+        ]
+    else:
+        return [
+            item
+            for index, item in enumerate(list)
+            if item is not None and list.index(item) == index
+        ]
 
 
 @https_fn.on_call(secrets=[ALGOLIA_API_KEY])
@@ -189,11 +197,13 @@ def _post_process_hits(hits):
         if "votes_for" in hit:
             for vote in hit["votes_for"]:
                 vote["ActorFractie"] = _map_party(vote["ActorFractie"])
-            hit["votes_for"] = _get_unique_items(hit["votes_for"])
+            hit["votes_for"] = _get_unique_items(hit["votes_for"], key="ActorFractie")
         if "votes_against" in hit:
             for vote in hit["votes_against"]:
                 vote["ActorFractie"] = _map_party(vote["ActorFractie"])
-            hit["votes_againts"] = _get_unique_items(hit["votes_against"])
+            hit["votes_against"] = _get_unique_items(
+                hit["votes_against"], key="ActorFractie"
+            )
     return hits
 
 
