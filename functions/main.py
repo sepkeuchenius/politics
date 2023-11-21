@@ -92,11 +92,26 @@ def _get_unique_items(list: list, key=None):
         ]
 
 
+def _get_query_list(original_query: str):
+    """Generates a list of queries from the user, when the user used <query1>+<query2> format.
+
+    Args:
+        original_query (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return original_query.split("+")
+
+
 @https_fn.on_call(secrets=[ALGOLIA_API_KEY])
 def search(req: https_fn.CallableRequest) -> https_fn.Response:
     # Create a new index and add a record
     save_user_query(req.data["query"], req.auth.uid)
-    hits = index.search(req.data["query"])["hits"]
+    query_list = _get_query_list(req.data["query"])
+    hits = []
+    for query in query_list:
+        hits += index.search(query, {"X-Algolia-UserToken": req.auth.uid, "userToken": req.auth.uid})["hits"]
     hits = _post_process_hits(hits)
     motions = [hit for hit in hits if _is_motion(hit)]
     parties_that_filed_motions = [
