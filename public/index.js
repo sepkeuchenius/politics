@@ -88,6 +88,7 @@ function loadResults(res) {
   // createVennDiagram(partyOverlaps)
   createFacts(res.data)
   createHeatMap(partyOverlaps)
+  $("#share").show()
 }
 
 function createHeatMap(heatMapData) {
@@ -326,4 +327,20 @@ function calcDimensions(nHits, totalHits, x, y, outerX, outerY, fillWidth) {
     width = thisSurface / height;
   }
   return [x, y, x + width, y + height]
+}
+
+function shareQuery() {
+  const searchParams = new URLSearchParams(window.location.search);
+  if (navigator.share) {
+    if (searchParams.has('q')) {
+
+      navigator.share({
+        title: `Zoek ${searchParams.get("q")} op politics-navigator`,
+        url: window.location.href
+      })
+    }
+  }
+  else {
+    window.open(`whatsapp://send?text=Zoek ${searchParams.get("q")} op politics-navigator: ${window.location.href}`)
+  }
 }
