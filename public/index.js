@@ -203,7 +203,6 @@ function createPartiesChart(data) {
         }
       },
       onClick: (e, elements) => {
-        const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
         if (elements[0]) {
           const i = elements[0].index;
           const party = data.old_program_party_occurance_tuples[i];

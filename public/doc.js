@@ -392,12 +392,13 @@ function getHeight($el){
     return bottom - top;
 }
 
-async function loadPartyDocs(party){
+function loadPartyDocs(party){
     console.log(party)
-    for(doc of DOCS){
-        await doc.show()
+    $(".doc").show()
+    $(".doc").each(function(_){
+        const doc = getDocById($(this).attr("id"))
         if(!((doc.data.party && party == doc.data.party) || (doc.data.parties && doc.data.parties.includes(party)))){
-            await doc.hide()
+            $(this).hide()
         }
-    }
+    });
 }
