@@ -10,7 +10,7 @@ import os
 
 
 def process_motion(motion: dict, override=False):
-    filename = f"pre_processing/data/motions/{motion['Id']}.json"
+    filename = f"../data/motions/{motion['Id']}.json"
     if override or not os.path.exists(filename):
         motion_text = _get_motion_text(motion)
         motion_actors: list = motion.pop(f"{DOCUMENT}{ACTOR}")

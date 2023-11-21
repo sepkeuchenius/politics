@@ -1,8 +1,25 @@
 import fitz
 import requests
 from urllib.parse import quote
-from utils import _get_doc_paragraphs, MotionConfig
+# from ..utils import _get_doc_paragraphs
 import typing
+
+
+class MotionConfig:
+    def __init__(self, doc):
+        self.doc = doc
+        self.output_path = f"../out/motions/{doc.get('Id').split('/')[-1]}"
+        self.config = CONFIGS["MOTION"]
+
+
+CONFIGS = {
+    "MOTION": {
+        "SKIP_PAGES": 0,
+        "MARGIN_SIZE": 100,
+        "PAR_MARGIN": 20,
+    },
+}
+
 
 CASE = "Zaak"
 DECISION = "Besluit"
@@ -78,6 +95,49 @@ def _get_motion_text(motion) -> str:
             break
     motion_text = "\n".join(pars[_split_index + 1 :])
     return motion_text
+
+
+def _clean_text(text: str):
+    text = text.strip().strip("\n")
+    return text
+
+
+def _get_doc_paragraphs(doc, config: MotionConfig = None):
+    page_height = list(doc.pages())[0].rect.height
+    pars = []
+    blocks = [
+        page.get_text("blocks")
+        for index, page in enumerate(doc.pages())
+        if index >= config.config["SKIP_PAGES"]
+    ]
+    for block in blocks:
+        if len(block) > 4:
+            # check if blocks inside block
+            if isinstance(block, list):
+                # put blocks together
+                par_text = ""
+                last_y = 0
+                for block_piece in block:
+                    if block_piece[1] < config.config["MARGIN_SIZE"] or block_piece[
+                        1
+                    ] > (page_height - config.config["MARGIN_SIZE"]):
+                        continue
+                    if len(block_piece) <= 4 or "<" in block_piece[4]:
+                        continue
+                    if (
+                        block_piece[1] < last_y
+                        or block_piece[1] - last_y > config.config["PAR_MARGIN"]
+                    ):
+                        if par_text and len(par_text.split()) > 3:
+                            pars.append(_clean_text(par_text))
+                        par_text = block_piece[4]
+                    else:
+                        par_text += block_piece[4]
+                    last_y = block_piece[1]
+
+            else:
+                raise ValueError("Not a list")
+    return pars
 
 
 # print(json.dumps(motion, indent=2))

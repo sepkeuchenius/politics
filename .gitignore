@@ -5,3 +5,5 @@ pre_processing/__pycache__/utils.cpython-310.pyc
 .firebase
 .firebaserc
 functions/ui-debug.log
+pre_processing/data
+pre_processing/digest_motions/__pycache__

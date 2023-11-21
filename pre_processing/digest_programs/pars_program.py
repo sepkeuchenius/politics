@@ -186,11 +186,6 @@ CONFIGS = {
             "PAR_MARGIN": 20,
         },
     },
-    "MOTION": {
-        "SKIP_PAGES": 0,
-        "MARGIN_SIZE": 100,
-        "PAR_MARGIN": 20,
-    }
 }
 
 PARTY = input("Provide party you want to analyze the program of: ")
