@@ -22,7 +22,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-core.min.js"></script>
   <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-venn.min.js"></script>
@@ -46,16 +47,20 @@
     <h1 id="history-header">Geschiedenis</h1>
 
   </div>
-  <h1 style="text-align: center; margin-bottom:0px; text-decoration: underline var(--third) 4px;">Politics Navigator</h1>
+  <h1 style="text-align: center; margin-bottom:0px; text-decoration: underline var(--third) 4px;"><img
+      src='politics.png' style="vertical-align: -25%;
+    height: 40px;
+    margin-right: 7px;" />Politics Navigator</h1>
   <div id="search-box" style="height: 50px;">
     <input type="text" id="query" placeholder="Wat vind jij belangrijk?" />
     <span class="material-symbols-outlined search" onclick="browserSearch()" style="cursor: pointer;">search
-      </span>
-    </div>
+    </span>
+  </div>
 
-  
+
   <div class="loader"></div>
-  <button id="share" onclick="shareQuery()">Deel zoekopdracht   <span class="material-symbols-outlined" style="vertical-align: -16%; font-size:15px;">share</span></button>
+  <button id="share" onclick="shareQuery()">Deel zoekopdracht <span class="material-symbols-outlined"
+      style="vertical-align: -16%; font-size:15px;">share</span></button>
   <div id="facts-hint" style="display: none;">
     Snelle feiten op een rij
   </div>
@@ -65,7 +70,7 @@
   </p>
   <div id="heatmap"></div>
   <p style="display: none;" id="chart-hint">
-  Activiteit van partijen
+    Activiteit van partijen
   </p>
   <div class="chart-container">
     <canvas id="chart">
@@ -80,7 +85,7 @@
   <div id="doc">
     <span class="material-symbols-outlined close" onclick="hideDoc()">
       cancel
-      </span>
+    </span>
     <h1 class="title"></h1>
     <div id="tags">
       <span id='date' class="tag"></span>
@@ -96,7 +101,7 @@
   <footer>
     Gemaakt door Sep Keuchenius and Andrzej Gajda. <a href="/disclaimer">Disclaimer</a>
   </footer>
-  
+
 
   <script src="doc.js"></script>
   <script src="index.js"></script>
