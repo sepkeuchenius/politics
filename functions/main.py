@@ -234,6 +234,7 @@ def _get_party_pics(parties):
     return pics_per_party
 
 
+# TODO heat map
 def _get_overlapping_parties(motions, parties):
     # Calculate the overlap between parties
     max_distance = len(motions) * 2

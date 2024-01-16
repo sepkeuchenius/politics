@@ -85,7 +85,7 @@ function loadResults(res) {
   PICS_PER_PARTY = pics_per_party
   createPartiesChart(res.data)
   loadDocs(hits)
-  // createVennDiagram(partyOverlaps)
+  //  createVennDiagram(partyOverlaps)
   createFacts(res.data)
   createHeatMap(partyOverlaps)
   $("#share").show()
